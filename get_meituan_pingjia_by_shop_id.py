@@ -7,13 +7,23 @@ import os
 import json
 import re 
 import selenium.webdriver as driver
-from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
+import traceback
+import selenium.common
 
 #请求网址
 url = 'https://www.meituan.com/meishi/'
 
 browser = driver.Chrome()
+
+
+#根据商店id获取其评价
+def get_comments_by_id(shop_id):
+    pass
+
+
+
+
 browser.get('http://www.meituan.com/meishi/2373531/')
 time.sleep(10)
 
@@ -22,11 +32,10 @@ soup = BeautifulSoup(browser.page_source, "lxml")
 
 
 #推荐菜品获取  class="recommend"
-
 recommend_pattern = '<span>[\u4e00-\u9fa5]*<\span>'
-recommend_regex  = re.compile(recommend_pattern)
+recommend_regex = re.compile(recommend_pattern)
 
-divs = soup.find('div', class_ = 'recommend')
+divs = soup.find('div', class_='recommend')
 list = divs.find('div', class_='list clear')
 
 recommends = list.find_all('span')
@@ -34,19 +43,61 @@ recommends = list.find_all('span')
 for recommend in recommends:
     print(recommend.string)
 
+#browser.find_element_by_xpath("//ul[@class='pagination clear']/li/span[contains(text(),'2')]").click()
 
-#获取下一页按钮
-next_page_btn= soup.find('span', class_ = 'iconfont icon-btn_right')
-#判断下一页按钮是否可以点击，如果可以点击则跳转到下一个继续获取评论
+current_node = browser.find_elements_by_xpath("//ul[@class='pagination clear']/li/span")
+for node in current_node:
+    print(node.text)
 
-#while()
-#翻页，获取所有评价
+page_count = current_node[6].text
 
-#获取评价
-# divs = soup.find('div', class_ = 'comment')
-#
-# comments = divs.find_all('div', class_='desc')
-# for comment in comments:
-#     print(comment.string)
+
+i = 1
+#获取所有评价
+while(1):
+
+    # 获取网页源码
+    #browser.get('http://www.meituan.com/meishi/2373531/')
+    soup = BeautifulSoup(browser.page_source, "lxml")
+    page_num = str(i)
+
+    #browser.find_element_by_xpath("//ul[@class='pagination clear']/li/span[contains(text(), page_num)]").click()
+
+    divs = soup.find('div', class_ = 'comment')
+
+    print('当前是：' + str(i) + '页')
+    comments = divs.find_all('div', class_='desc')
+    for comment in comments:
+        print(comment.string)
+
+    try:
+
+        next_node = browser.find_element_by_xpath(
+            "//ul[@class='pagination clear']/li/span[@class='iconfont icon-btn_right']").click()
+
+        time.sleep(10)
+
+    except selenium.common.exceptions.WebDriverException:
+
+        msg = traceback.format_exc()
+        print(msg)
+
+        print('最后一页 ！')
+        next_node = browser.find_element_by_xpath(
+            "//ul[@class='pagination clear']/li/span[@class='iconfont icon-btn_right disabled']")
+
+        exit()
+
+    except:
+
+        msg = traceback.format_exc()
+        print(msg)
+
+        exit()
+
+
+    else:
+        i = i + 1
+
 
 
