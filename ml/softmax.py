@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-07-15 16:49:38
+@LastEditTime: 2019-07-15 16:55:21
 '''
 
 import numpy as np
@@ -12,7 +12,10 @@ import numpy as np
 def autograd():
     pass
 
-def softmax():
+#将数值转化为概率分布
+def softmax(Vector):
+
+    # Vector.
     pass
 
 #s损失函数模型
