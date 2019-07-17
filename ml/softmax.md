@@ -5,10 +5,12 @@
     1. 输出层的输出范围不确定，难以直观上判断这些值得意义；
     2. 真实标签是离散值，这些离散值与不确定范围的输出值之间的误差难以衡量。
  1. softmax通过下式将输出值变换为正值且概率的和为1的概率分布：
+
 $$
     \ {y_1},\ \hat{y_2},\ \hat{y_3} = softmax(o_{1},\  o_{2},\ o_{3})
 $$
 其中
+
 $$
     \hat{y_1} = \frac{exp(o_1)}{\sum^{3}_{i=1}{exp(o_i)}}, \quad
     \hat{y_2} = \frac{exp(o_2)}{\sum^{3}_{i=1}{exp(o_i)}},\quad
@@ -26,6 +28,7 @@ $$
     O = X * Wt + tbt
 
 权重与偏差
+
 $$
 W = \begin{bmatrix}
     w_{11} & w_{12} & \dots &w_{1n} \\
@@ -43,9 +46,10 @@ b = \begin{bmatrix}
     b_{n}
     \end{bmatrix}
 $$
-<br/>
+<!-- <br/> -->
 
 输入层，样本特征
+
 $$
 x^{(i)} = \begin{bmatrix}
         x^{i}_{1} \quad
@@ -55,9 +59,11 @@ x^{(i)} = \begin{bmatrix}
         \end{bmatrix}
 
 $$
+
 <br/>
 
 输出层
+
 $$
 o^{(i)} = \begin{bmatrix}
         o^{i}_{1} \quad
@@ -65,11 +71,11 @@ o^{(i)} = \begin{bmatrix}
         \dots \quad
         o^{i}_{m}
         \end{bmatrix}
-
 $$
 <br/>
 
 概率分布
+
 $$
 y^{(i)} = \begin{bmatrix}
         y^{i}_{1} \quad
@@ -81,16 +87,16 @@ y^{(i)} = \begin{bmatrix}
 $$
 <br/>
 
-
 softmax回归对样本i分类的⽮量计算表达式为
+
 $$
     o^{(i)} = x^{i}W + b, \\
     \hat{y}^{(i)} = softmax(o^{(i)}).
 $$
 <br/>
 
-
 计算过程
+
 $$
     \begin{bmatrix}
     o_1 \\
@@ -128,13 +134,15 @@ $$
 $$
 
 ### 2. 误差公式
- 
+
 交叉熵函数
+
 $$
     H(y^{(i)}, \hat y^{(i)}) = -\sum^{q}_{j=1} y^{(i)}_j log \hat y^{(i)}_j \tag{3}
 $$
 
 交叉熵损失函数
+
 $$
     \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
 $$
@@ -144,16 +152,19 @@ $$
     最小化误差 ->  利用梯度下降法求出误差最小时 w 与 b 的值。
     
     求梯度
+
 $$
     \frac{\partial y}{\partial o} * \frac{\partial o}{\partial w} 
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial w} \\
-$$     
-$$   
+$$
+
+$$
     \frac{\partial y}{\partial o} * \frac{\partial o}{\partial b} 
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial b} \\
 $$
+
 ## 三、预测
 
 
