@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-07 14:23:45
 @LastEditors: SunZewen
-@LastEditTime: 2019-07-07 17:43:20
+@LastEditTime: 2019-07-08 23:02:22
 '''
 
 import numpy as np
@@ -48,6 +48,37 @@ def numpy_axis():
     print(array.sum(axis = 2))
 
 '''
+@name: 
+@test: test font
+@msg: 
+@param {type} 
+@return: 
+@LastEditors: SunZewen
+@Date: 2019-07-08 22:52:59
+'''
+
+def numpy_slice_index():
+    print('numpy_slice_index function')
+
+    array = np.arange(20)
+    print('array : ')
+    print(array)
+
+    array_slice = array[0:11:3]
+    print('array_slice : ')
+    print(array_slice)
+
+    array_slice_1 = array[1:]
+    print(array_slice_1)
+
+    array_slice_2 = array[:10]
+    print(array_slice_2)
+
+    array_index = array[5]
+    print(array_index)
+
+
+'''
 @name: main
 @test: test font
 @msg: 
@@ -59,6 +90,7 @@ def main():
 
     numpy_attr()
     numpy_axis()
+    numpy_slice_index()
 
 
 if __name__ == '__main__':
