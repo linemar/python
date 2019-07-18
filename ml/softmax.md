@@ -43,7 +43,7 @@ b = \begin{bmatrix}
     b_{n}
     \end{bmatrix}
 $$
-<br/>
+&nbsp;
 
 输入层，样本特征
 $$
@@ -55,7 +55,8 @@ x^{(i)} = \begin{bmatrix}
         \end{bmatrix}
 
 $$
-<br/>
+
+&nbsp;
 
 输出层
 $$
@@ -67,7 +68,7 @@ o^{(i)} = \begin{bmatrix}
         \end{bmatrix}
 
 $$
-<br/>
+&nbsp;
 
 概率分布
 $$
@@ -79,7 +80,7 @@ y^{(i)} = \begin{bmatrix}
         \end{bmatrix}
 
 $$
-<br/>
+&nbsp;
 
 
 softmax回归对样本i分类的⽮量计算表达式为
@@ -87,7 +88,7 @@ $$
     o^{(i)} = x^{i}W + b, \\
     \hat{y}^{(i)} = softmax(o^{(i)}).
 $$
-<br/>
+&nbsp;
 
 
 计算过程
@@ -118,7 +119,7 @@ $$
     \end{bmatrix} \tag{1}
 $$
 
-<br/>
+&nbsp;
 
 $$
     o_1 = x_1w_{11} + x_2w_{21} + x_3w_{31} + \dots + x_nw_{n1} + b_1\\
@@ -130,11 +131,35 @@ $$
 ### 2. 误差公式
  
 交叉熵函数
+
 $$
-    H(y^{(i)}, \hat y^{(i)}) = -\sum^{q}_{j=1} y^{(i)}_j log \hat y^{(i)}_j \tag{3}
+H(p, q) = - \sum_{x}
+            p(x) \;
+            \textup{log} \;
+            q(x)
 $$
 
-交叉熵损失函数
+举个例子：
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;假设N=3，期望输出为p=(1,0,0)，实际输出q1=(0.5,0.2,0.3)，q2=(0.8,0.1,0.1)q1=(0.5,0.2,0.3)，q2=(0.8,0.1,0.1)，这里的q1,q2两个输出分别代表在不同的神经网络参数下的实际输出，通过计算其对应的交叉熵来优化神经网络参数，计算过程： 
+H(p,q1)=−1(1×log0.5+0×log0.2+0×log0.3)
+假设结果：H(p,q1)=0.3
+H(p,q2)=−1(1×log0.8+0×log0.1+0×log0.1) 
+&nbsp;
+
+假设结果：H(p,q2)=0.1 
+这时得到了q2是相对正确的分类结果
+
+&nbsp;
+
+在本例中单样本的交叉熵损失函数公式
+$$
+    H(y^{(i)}, \hat y^{(i)}) = -\sum^{q}_{j=1} y^{(i)}_j \;
+                                \textup{log} \;
+                                \hat y^{(i)}_j \tag{3}
+$$
+
+n个样本的交叉熵损失函数
 $$
     \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
 $$
@@ -148,12 +173,15 @@ $$
     \frac{\partial y}{\partial o} * \frac{\partial o}{\partial w} 
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial w} \\
-$$     
+$$   
+
 $$   
     \frac{\partial y}{\partial o} * \frac{\partial o}{\partial b} 
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial b} \\
 $$
+
+### 5. 训练过程
 ## 三、预测
 
 
