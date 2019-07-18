@@ -154,17 +154,21 @@ $$
     求梯度
 
 $$
-    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial w} 
+    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial w}
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial w} \\
 $$
 
 $$
-    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial b} 
+    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial b}
     ---> \frac{\partial y}{\partial o} \\
     ---> \frac{\partial o}{\partial b} \\
 $$
 
+最终结果：
+
+$$
+\frac{\partial\zeta}{\partial W} \; = -x_i (y_i - \hat{y}_i)^T
+$$
+
 ## 三、预测
-
-

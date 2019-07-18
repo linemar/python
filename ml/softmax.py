@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-07-17 09:18:52
+@LastEditTime: 2019-07-18 22:15:04
 '''
 
 import numpy as np
@@ -36,10 +36,22 @@ def comput_y_hat(W, X):
     return result
 
 
+def softmax(O):
+     Y = []
+     sum = np.exp(O).sum
+     for i in range(0, len(Y)):
+          Y.append(O[i]/sum)
+
+     return Y
+
+
 #s损失函数模型
 def lose_func(y, y_hat):
      
      loss = 0
+     
+     for i in range(0, len(y)):
+          loss += y[i] * np.log(y_hat[i])
 
      return loss
 
