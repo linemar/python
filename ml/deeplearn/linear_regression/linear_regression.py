@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-01 08:29:00
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-01 16:41:13
+@LastEditTime: 2019-08-02 09:01:04
 '''
 from IPython import display
 from matplotlib import pyplot as plt
@@ -33,19 +33,15 @@ def net(w):
 def genarate_data(W, b):
 
     #生成输入，即x
-    featurs = np.random.normal(0, 1, (1000,2))
+    features = np.random.normal(0, 1, (1000,2))
     
     #计算真实的y
-    labels = W[0][0]* featurs[:,0] + W[0][1] * featurs[:,1] + b
+    labels = W[0][0]* features[:,0] + W[0][1] * features[:,1] + b
 
     #添加误差
-    labels += np.random.normal(0, 0.001, labels.shape)
+    labels += np.random.normal(0, 0.01, labels.shape)
 
-    #显示生成的数据
-    # display.set_matplotlib_formats('svg')
-    # plt.scatter(features[:, 1].asnumpy(), labels.asnumpy(), 1);
-
-    return featurs, labels
+    return features, labels
 
 '''
 @name: 定义损失函数
@@ -99,7 +95,7 @@ def train(W, b, lr, features, labels, batch_size, epoch):
 
     for num in range(0, epoch):
         
-        loss = 0;
+        loss = [];
 
         grad_w1 = 0
         grad_w2 = 0
@@ -115,13 +111,18 @@ def train(W, b, lr, features, labels, batch_size, epoch):
         W[0][1] = W[0][1] - lr * grad_w2 / 1000
 
         b = b - lr * grad_b / 1000
-
+        l = 0;
         for i in range(0 , 1000):
-            loss += 0.5 * (features[i][0] * W[0][0] + features[i][1] * W[0][1] + b - labels[i]) ** 2
+            l += (features[i][0] * W[0][0] + features[i][1] * W[0][1] + b - labels[i]) ** 2 / 2
+        loss.append(l/1000)
+        # loss = loss / 1000
 
-        loss = loss / 1000
+        # if len(loss) > 1:
+        #     loss_last = loss[len(loss) - 1] -  loss[len(loss) - 2]
 
-        print("epoch %d, loss %f" %(num ,loss))
+        loss_last = loss[len(loss) - 1]
+
+        print("epoch %d, loss %f" %(num ,loss_last))
 
     return W, b
 
