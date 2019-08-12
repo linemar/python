@@ -1,3 +1,11 @@
+<!--
+ * @Descripttion: 
+ * @version: 
+ * @Author: SunZewen
+ * @Date: 2019-08-07 11:11:12
+ * @LastEditors: SunZewen
+ * @LastEditTime: 2019-08-12 19:37:21
+ -->
 # 基于Numpy实现softmax
 
 ## 一、 softmax基本概念
@@ -28,7 +36,7 @@ $$
 
 ## 二、训练
 
-### 1、单样本分类的⽮量计算表达式
+## 1、单样本分类的⽮量计算表达式
 
     为了方便计算一般将W进行转置，（分类类型，输入参数），将b转置为（1，分类类型）
     O = X * Wt + tbt
@@ -133,7 +141,7 @@ $$
     o_m = x_1w_{1m} + x_2w_{2m} + x_3w_{3m} + \dots + x_nw_{nm} + b_m\tag{2}
 $$
 
-### 2. 误差公式
+## 2. 误差公式
 
 交叉熵函数
 $$
@@ -167,23 +175,81 @@ $$
     \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
 $$
 
-### 4. 反向传播
+## 4. 反向传播
 
     最小化误差 ->  利用梯度下降法求出误差最小时 w 与 b 的值。
     
     求梯度
+    
+损失函数 为
 $$
-    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial w}
-    ---> \frac{\partial y}{\partial o} \\
-    ---> \frac{\partial o}{\partial w} \\
+ E = \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
+$$
+根据链式求导法则可以推出：
+$$
+    \frac{\partial E}{\partial w_{ij}} = \frac{\partial E}{\partial \hat{y}} * 
+                                         \frac {\partial \hat{y}}{\partial o_i} * 
+                                         \frac {\partial o_i}{\partial w_{ij}}
 $$
 
+### 1、
 $$
-    \frac{\partial y}{\partial o} * \frac{\partial o}{\partial b}
-    ---> \frac{\partial y}{\partial o} \\
-    ---> \frac{\partial o}{\partial b} \\
+\frac{\partial E}{\partial \hat{y_i}} = y* \frac{1}{\hat{y_i}}
+$$
+### 2、
+
+这一步要分情况讨论
+
+$$
+\hat{y_i} = \frac{exp(o_j)}{\sum^{3}_{j=1}{exp(o_j)}} \tag{6}
 $$
 
-### 5. 训练过程
+当 $i = j$ 时
+$$
+\frac{\partial \hat{y_i}}{\partial o_i} = \frac{exp(o_j)}{\sum^{3}_{j=1}{exp(o_j)}} - 
+                                          (\frac{exp(o_j)}{\sum^{3}_{j=1} exp(o_j)})^2
+$$
+由式6可得
+$$
+\frac{\partial \hat{y_i}}{\partial o_i} = \hat{y_i} - \hat{y_i}^2 \\
+                                    \qquad \quad    = \hat{y_i}(1 -\hat{y_i})
+$$
+
+当 $i \not= j$ 时
+$$
+\frac{\partial \hat{y_i}}{\partial o_j} = -\frac{exp(o_i) \ exp(o_j)}{(\sum^{3}_{j=1} exp(o_j))^2}
+$$
+
+由式6可得
+$$
+\frac{\partial \hat{y_i}}{\partial o_i} = -\hat{y_i} * \hat{y_j} 
+$$
+
+### 3、
+$$
+\frac{\partial E}{\partial \hat{y}} = y* \frac{1}{\hat{y}}
+$$
+$$        
+
+    \frac{\partial o_i}{\partial w_{ij}} = x_{i} 
+$$
+
+### 4、 整合结果
+$$
+    \frac{\partial E}{\partial w_{ij}} = \frac{\partial E}{\partial \hat{y_1}} * 
+                                         \frac {\partial \hat{y_1}}{\partial o_i} * 
+                                         \frac {\partial o_i}{\partial w_{ij}} + 
+                                         \frac{\partial E}{\partial \hat{y_2}} * 
+                                         \frac {\partial \hat{y_2}}{\partial o_i} * 
+                                         \frac {\partial o_i}{\partial w_{ij}} +
+                                         \frac{\partial E}{\partial \hat{y_3}} * 
+                                         \frac {\partial \hat{y_3}}{\partial o_i} * 
+                                         \frac {\partial o_i}{\partial w_{ij}} \\
+
+                                      = y_1 * \frac{1}{\hat{y_1}}  
+
+                                    
+$$
+## 5. 训练过程
 
 ## 三、预测

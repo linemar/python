@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-07-19 16:00:26
+@LastEditTime: 2019-08-07 11:14:31
 '''
 
 import numpy as np
@@ -70,7 +70,7 @@ def initial_model(num_inputs, num_outputs):
     return w, b
 
 
-#训练函数，模型（W,b)，数据集（图片，标签,, 学习率，梯度，误差范围
+#训练函数，模型（W,b)，数据集（图片，标签, 学习率，梯度，误差范围
 def train(net, images, labels, lr, grad, loss):
      
      
