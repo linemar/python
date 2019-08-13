@@ -4,7 +4,7 @@
  * @Author: SunZewen
  * @Date: 2019-08-07 11:11:12
  * @LastEditors: SunZewen
- * @LastEditTime: 2019-08-12 19:37:21
+ * @LastEditTime: 2019-08-12 19:44:34
  -->
 # 基于Numpy实现softmax
 
@@ -246,7 +246,7 @@ $$
                                          \frac {\partial \hat{y_3}}{\partial o_i} * 
                                          \frac {\partial o_i}{\partial w_{ij}} \\
 
-                                      = y_1 * \frac{1}{\hat{y_1}}  
+                                      = y_1 * \frac{1}{\hat{y_1}}  * ()
 
                                     
 $$
