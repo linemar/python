@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-16 08:40:07
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-13 17:02:48
+@LastEditTime: 2019-08-13 21:30:25
 '''
 import os
 import gzip
@@ -50,8 +50,8 @@ def load_data(path, file):
     
     print('load fashion minst')
 
-    if not os.path.exists(os.path.join(data_path, i)):
-        print(os.path.join(data_path, i) + 'is not exists.')
+    if not os.path.exists(os.path.join(path, file)):
+        print(os.path.join(path, file) + 'is not exists.')
 
     return 0
 
