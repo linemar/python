@@ -1,3 +1,11 @@
+'''
+@Descripttion: 
+@version: 
+@Author: SunZewen
+@Date: 2019-07-16 08:40:07
+@LastEditors: SunZewen
+@LastEditTime: 2019-08-13 17:02:48
+'''
 import os
 import gzip
 import numpy as np
@@ -65,7 +73,7 @@ def show_image(class_names, labels, images):
 
 if __name__ == "__main__":
 
-    data_path = './data/fashion'
+    data_path = '../../data/fashion'
     class_names = ['短袖圆领T恤', '裤子', '套衫', '连衣裙', '外套', '凉鞋', '衬衫', '运动鞋','包', '短靴']
 
     file_list = ['t10k-images-idx3-ubyte.gz',

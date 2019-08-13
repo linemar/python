@@ -4,7 +4,7 @@
  * @Author: SunZewen
  * @Date: 2019-08-07 11:11:12
  * @LastEditors: SunZewen
- * @LastEditTime: 2019-08-12 19:44:34
+ * @LastEditTime: 2019-08-13 15:02:25
  -->
 # 基于Numpy实现softmax
 
@@ -179,11 +179,9 @@ $$
 
     最小化误差 ->  利用梯度下降法求出误差最小时 w 与 b 的值。
     
-    求梯度
-    
-损失函数 为
+单样本的损失函数 为
 $$
- E = \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
+ E = H(y, \hat y) \tag{4}
 $$
 根据链式求导法则可以推出：
 $$
@@ -235,21 +233,49 @@ $$
 $$
 
 ### 4、 整合结果
+以 $w_{11}$ 为例
 $$
-    \frac{\partial E}{\partial w_{ij}} = \frac{\partial E}{\partial \hat{y_1}} * 
-                                         \frac {\partial \hat{y_1}}{\partial o_i} * 
-                                         \frac {\partial o_i}{\partial w_{ij}} + 
+  
+ 
+    \frac{\partial E}{\partial w_{11}} = \frac{\partial E}{\partial \hat{y_1}} * 
+                                         \frac {\partial \hat{y_1}}{\partial o_1} * 
+                                         \frac {\partial o_1}{\partial w_{11}} + 
                                          \frac{\partial E}{\partial \hat{y_2}} * 
-                                         \frac {\partial \hat{y_2}}{\partial o_i} * 
-                                         \frac {\partial o_i}{\partial w_{ij}} +
+                                         \frac {\partial \hat{y_2}}{\partial o_1} * 
+                                         \frac {\partial o_1}{\partial w_{11}} +
                                          \frac{\partial E}{\partial \hat{y_3}} * 
-                                         \frac {\partial \hat{y_3}}{\partial o_i} * 
-                                         \frac {\partial o_i}{\partial w_{ij}} \\
+                                         \frac {\partial \hat{y_3}}{\partial o_1} * 
+                                         \frac {\partial o_1}{\partial w_{11}} \\
 
-                                      = y_1 * \frac{1}{\hat{y_1}}  * ()
+     \ \quad\qquad\qquad\qquad\qquad = y_1 * \frac{1}{\hat{y_1}}  * ({\hat{y_1}(1 - \hat{y_1})}) * x_1 +  y_2 * \frac{1}{\hat{y_2}}  * ({ - \hat{y_1}\hat{y_2}}) * x_1 +
+                                       y_3 * \frac{1}{\hat{y_3}}  * ({ - \hat{y_1}\hat{y_3}}) * x_1   \\
+                                     = (y_1 * (1 - \hat{y_1}) - y_2\hat{y_1} - y_3\hat{y_1}) * x_1 \ \quad\qquad\qquad\qquad\qquad \\
+                                       =(y_1 - \hat{y_1}(\hat{y_1} + \hat{y_2} + \hat{y_3})) * x_1  \ \quad\qquad\qquad\qquad\qquad\qquad \\
+                                       = (y_1 - \hat{y_1}) * x_1 \qquad\qquad\qquad\qquad\qquad\qquad\quad\qquad\qquad\ \;
 
+$$
+
+由此可得：
+$$
+    \frac{\partial E}{\partial w_{ij}} =  \sum^{n}_{k=1} \frac{\partial E}{\partial \hat{y_k}} * 
+                                         \frac {\partial \hat{y_k}}{\partial o_i} * \frac {\partial o_i}{\partial w_{ij}}
+                                       = (y_i - \hat{y_i}) * x_i
                                     
 $$
+
+b可以看做是${x_{i+1}}$的w,而${x_{i+1}}恒为1
+$$
+    \frac{\partial E}{\partial b_{i}} =  \sum^{n}_{k=1} \frac{\partial E}{\partial \hat{y_k}} * 
+                                         \frac {\partial \hat{y_k}}{\partial o_i} * \frac {\partial o_i}{\partial b_{ik}}
+                                       = y_i - \hat{y_i}
+$$
+
 ## 5. 训练过程
+
+$$
+w_{ij} = w_{ij}  - \delta \frac{\partial E}{\partial w_{ij}} \\
+
+b_{i} = b_{i} - \delta \frac{\partial E}{\partial b_{i}} 
+$$
 
 ## 三、预测
