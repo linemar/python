@@ -4,7 +4,7 @@
  * @Author: SunZewen
  * @Date: 2019-08-07 11:11:12
  * @LastEditors: SunZewen
- * @LastEditTime: 2019-08-13 15:02:25
+ * @LastEditTime: 2019-08-14 09:14:43
  -->
 # 基于Numpy实现softmax
 
@@ -229,7 +229,7 @@ $$
 $$
 $$        
 
-    \frac{\partial o_i}{\partial w_{ij}} = x_{i} 
+    \frac{\partial o_i}{\partial w_{ij}} = x_{j} 
 $$
 
 ### 4、 整合结果

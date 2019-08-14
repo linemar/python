@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-14 12:47:36
+@LastEditTime: 2019-08-14 13:28:34
 '''
 from fashion_mnist import extract_train_img_data 
 from fashion_mnist import extract_train_label_data 
@@ -19,21 +19,6 @@ import matplotlib
 import gzip
 from matplotlib.font_manager import FontProperties 
 
-
-#将输入数值转化为概率分布
-# def initial_input(vector):
-
-#     # vector.sum(axis = 1)
-#     print('np.exp(vector) : ')
-#     print(np.exp(vector))
-#     # print(vector.sum(axis = 0))
-
-#     print('np.exp(vector).sum(axis = 0) : ')
-#     print(np.exp(vector).sum(axis = 0))
-
-#     # new_vector = np.exp(vector) / vector.sum(axis = 0)
-#     new_vector = np.exp(vector) / np.exp(vector).sum(axis = 0)
-#     return new_vector
 
 def initial_input(vector):
 
@@ -61,8 +46,6 @@ def softmax(O):
      if sum > 100:
           print('sum')
           print(sum)
-     # for i in range(0, len(y)):
-     #      loss += np.exp(y[i])/sum
      
      return np.exp(O - max)/sum
 
@@ -90,7 +73,7 @@ def grad(y, y_hat, x):
 #初始化参数模型, 根据输入数据与输出输出数据，确定w与b
 def initial_model(num_inputs, num_outputs):
     
-    W = np.random.normal(scale = 0.01, size = (num_inputs, num_outputs))
+    W = np.zeros(shape = (num_inputs, num_outputs))
     b = np.zeros(shape = (1, num_outputs))
 
     return W, b
@@ -142,44 +125,54 @@ def train(W, b, images, labels, lr, num_epoch):
           grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)
           grad_b = np.zeros(shape = (1, 10), dtype=np.float64)
           
+          
           for j in range(len(images)):
                image = images[j]
                #根据初始条件计算预测值
                # images[j].dot(W) 
                O[j] = image.dot(W) + b
                Y_hat[j] = softmax(O[j])
-          
-          # print('O')
-               print(O[0])
-          # # print('Y_hat')
-               print(Y_hat[0])
-          # print(Y_hat[0].shape)
-          # re_y = Y_hat[0].reshape(10, 1)
-          # print(re_y)
-          # print(re_y.shape)
-          
-          #根据图片数量进行训练
-          # for j in range(len(images)):
 
                #计算全局偏导
                #偏导计算公式为(dw = (y - y_hat)*x), x即输入images
-               grad_W += np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
+               grad_W = grad_W + np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
                grad_b += Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)
 
+               print('image.reshape(784, 1)')
+               print(image.reshape(784, 1))
+               print('(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))')
+               print((Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
+
+               print('grad_W')
+               print(grad_W)
+               
                break
+          break
+
+          print('O[0]')
+          print(O[0])
+               
+          print('Y_hat[0]')
+          print(Y_hat[0])
+
+          print('Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)')
+          print(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10))
+
+          print(' ')
+
           
           #更新权重参数
           W = W - lr * grad_W / len(images)
           b = b - lr * grad_b / len(images)
 
-          print('W : ')
-          print(W)
+          # print('W : ')
+          # print(W)
 
-          print('b : ')
-          print(b)
+          # print('b : ')
+          # print(b)
 
-          e = loss(W , b , images, labels)
-          print('loss : %f'%(e))
+          # e = loss(W , b , images, labels)
+          # print('loss : %f'%(e))
 
      return W, b
 
@@ -268,7 +261,7 @@ if __name__ == "__main__":
 
      labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-     W, b = train(W, b, img_array[0:10], labels, 0.8, 300)
+     W, b = train(W, b, img_array[0:10], labels, 0.9, 10)
      Y = test(W, b, img_array[0:10])
 
      print(labels[0:10])
