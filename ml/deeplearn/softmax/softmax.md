@@ -4,7 +4,7 @@
  * @Author: SunZewen
  * @Date: 2019-08-07 11:11:12
  * @LastEditors: SunZewen
- * @LastEditTime: 2019-08-14 09:14:43
+ * @LastEditTime: 2019-08-14 22:39:54
  -->
 # 基于Numpy实现softmax
 
@@ -87,6 +87,7 @@ $$
 &nbsp;
 
 概率分布
+
 $$
 y^{(i)} = \begin{bmatrix}
         y^{i}_{1} \quad
@@ -99,6 +100,7 @@ $$
 &nbsp;
 
 softmax回归对样本i分类的⽮量计算表达式为
+
 $$
     o^{(i)} = x^{i}W + b, \\
     \hat{y}^{(i)} = softmax(o^{(i)}).
@@ -106,6 +108,7 @@ $$
 
 &nbsp;
 计算过程
+
 $$
     \begin{bmatrix}
     o_1 \\
@@ -134,6 +137,7 @@ $$
 $$
 
 &nbsp;
+
 $$
     o_1 = x_1w_{11} + x_2w_{21} + x_3w_{31} + \dots + x_nw_{n1} + b_1\\
     o_2 = x_1w_{12} + x_2w_{22} + x_3w_{32} + \dots + x_nw_{n2}  + b_2\\
@@ -144,6 +148,7 @@ $$
 ## 2. 误差公式
 
 交叉熵函数
+
 $$
 H(p, q) = - \sum_{x}
             p(x) \;
@@ -164,6 +169,7 @@ H(p,q2)=−1(1×log0.8+0×log0.1+0×log0.1)
 &nbsp;
 
 在本例中单样本的交叉熵损失函数公式
+
 $$
     H(y^{(i)}, \hat y^{(i)}) = -\sum^{q}_{j=1} y^{(i)}_j \;
                                 \textup{log} \;
@@ -171,8 +177,9 @@ $$
 $$
 
 n个样本的交叉熵损失函数
+
 $$
-    \ell(\Theta)  = \frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
+    \ell(\Theta)  = -\frac{1}{n} \sum ^n _{i=1} H(y^{(i)}, \hat y^{(i)}) \tag{4}
 $$
 
 ## 4. 反向传播
@@ -203,27 +210,32 @@ $$
 $$
 
 当 $i = j$ 时
+
 $$
 \frac{\partial \hat{y_i}}{\partial o_i} = \frac{exp(o_j)}{\sum^{3}_{j=1}{exp(o_j)}} - 
                                           (\frac{exp(o_j)}{\sum^{3}_{j=1} exp(o_j)})^2
 $$
 由式6可得
+
 $$
 \frac{\partial \hat{y_i}}{\partial o_i} = \hat{y_i} - \hat{y_i}^2 \\
                                     \qquad \quad    = \hat{y_i}(1 -\hat{y_i})
 $$
 
 当 $i \not= j$ 时
+
 $$
 \frac{\partial \hat{y_i}}{\partial o_j} = -\frac{exp(o_i) \ exp(o_j)}{(\sum^{3}_{j=1} exp(o_j))^2}
 $$
 
 由式6可得
+
 $$
 \frac{\partial \hat{y_i}}{\partial o_i} = -\hat{y_i} * \hat{y_j} 
 $$
 
 ### 3、
+
 $$
 \frac{\partial E}{\partial \hat{y}} = y* \frac{1}{\hat{y}}
 $$
@@ -234,9 +246,8 @@ $$
 
 ### 4、 整合结果
 以 $w_{11}$ 为例
+
 $$
-  
- 
     \frac{\partial E}{\partial w_{11}} = \frac{\partial E}{\partial \hat{y_1}} * 
                                          \frac {\partial \hat{y_1}}{\partial o_1} * 
                                          \frac {\partial o_1}{\partial w_{11}} + 
@@ -246,20 +257,20 @@ $$
                                          \frac{\partial E}{\partial \hat{y_3}} * 
                                          \frac {\partial \hat{y_3}}{\partial o_1} * 
                                          \frac {\partial o_1}{\partial w_{11}} \\
-
-     \ \quad\qquad\qquad\qquad\qquad = y_1 * \frac{1}{\hat{y_1}}  * ({\hat{y_1}(1 - \hat{y_1})}) * x_1 +  y_2 * \frac{1}{\hat{y_2}}  * ({ - \hat{y_1}\hat{y_2}}) * x_1 +
+$$
+$$
+     \ \quad\qquad\qquad\qquad\qquad = -y_1 * \frac{1}{\hat{y_1}}  * ({\hat{y_1}(1 - \hat{y_1})}) * x_1 -  y_2 * \frac{1}{\hat{y_2}}  * ({ - \hat{y_1}\hat{y_2}}) * x_1 -
                                        y_3 * \frac{1}{\hat{y_3}}  * ({ - \hat{y_1}\hat{y_3}}) * x_1   \\
-                                     = (y_1 * (1 - \hat{y_1}) - y_2\hat{y_1} - y_3\hat{y_1}) * x_1 \ \quad\qquad\qquad\qquad\qquad \\
-                                       =(y_1 - \hat{y_1}(\hat{y_1} + \hat{y_2} + \hat{y_3})) * x_1  \ \quad\qquad\qquad\qquad\qquad\qquad \\
-                                       = (y_1 - \hat{y_1}) * x_1 \qquad\qquad\qquad\qquad\qquad\qquad\quad\qquad\qquad\ \;
-
+                                     = -(y_1 * (1 - \hat{y_1}) - y_2\hat{y_1} - y_3\hat{y_1}) * x_1 \ \quad\qquad\qquad\qquad\qquad \\
+                                       =-(y_1 - \hat{y_1}(\hat{y_1} + \hat{y_2} + \hat{y_3})) * x_1  \ \quad\qquad\qquad\qquad\qquad\qquad \\
+                                       = (\hat{y_1} - y_1) * x_1 \qquad\qquad\qquad\qquad\qquad\qquad\quad\qquad\qquad\ \;
 $$
 
 由此可得：
 $$
     \frac{\partial E}{\partial w_{ij}} =  \sum^{n}_{k=1} \frac{\partial E}{\partial \hat{y_k}} * 
                                          \frac {\partial \hat{y_k}}{\partial o_i} * \frac {\partial o_i}{\partial w_{ij}}
-                                       = (y_i - \hat{y_i}) * x_i
+                                       = (\hat{y_i} - y_i) * x_i
                                     
 $$
 
@@ -267,7 +278,7 @@ b可以看做是${x_{i+1}}$的w,而${x_{i+1}}恒为1
 $$
     \frac{\partial E}{\partial b_{i}} =  \sum^{n}_{k=1} \frac{\partial E}{\partial \hat{y_k}} * 
                                          \frac {\partial \hat{y_k}}{\partial o_i} * \frac {\partial o_i}{\partial b_{ik}}
-                                       = y_i - \hat{y_i}
+                                       = \hat{y_i} - y_i
 $$
 
 ## 5. 训练过程

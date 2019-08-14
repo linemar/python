@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-14 18:55:47
+@LastEditTime: 2019-08-15 00:01:23
 '''
 from fashion_mnist import extract_train_img_data 
 from fashion_mnist import extract_train_label_data 
@@ -139,15 +139,16 @@ def train(W, b, images, labels, lr, num_epoch):
           # grad_b，向量，一维数组，所有样本的梯度和
           O = np.zeros(shape = (len(images), 10), dtype=np.float64)
           Y_hat = np.zeros(shape = (len(images), 10), dtype=np.float64)
-          grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)
+          # grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)
+          grad_W = np.random.random(size = (len(W), 10))
           grad_b = np.zeros(shape = (1, 10), dtype=np.float64)
           
-          for j in range(len(images)):
-               image = images[j]
-               #根据初始条件计算预测值
-               # images[j].dot(W) 
-               O[j] = image.dot(W) + b
-               Y_hat[j] = softmax(O[j])
+          # for j in range(len(images)):
+          #      image = images[j]
+          #      #根据初始条件计算预测值
+          #      # images[j].dot(W) 
+          #      O[j] = image.dot(W) + b
+          #      Y_hat[j] = softmax(O[j])
           
           # print('O')
           #      print(O[0])
@@ -163,21 +164,20 @@ def train(W, b, images, labels, lr, num_epoch):
 
                #计算全局偏导
                #偏导计算公式为(dw = (y - y_hat)*x), x即输入images
-               grad_W = np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
-               grad_b = Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)
-
-               W = W - lr * grad_W / len(images)
-               b = b - lr * grad_b / len(images)
+               # grad_W += np.dot(image.reshape(784, 1) ,(Y_hat[j].reshape(1, 10) - Y[j].reshape(1, 10)).reshape(1, 10))
+               # grad_b += Y_hat[j].reshape(1, 10) - Y[j].reshape(1, 10)
 
           #更新权重参数
-          # W = W - lr * grad_W / len(images)
-          # b = b - lr * grad_b / len(images)
+          W = W - lr * grad_W / len(images)
+          b = b - lr * grad_b / len(images)
 
-          # print('W : ')
-          # print(W)
+          OY = test(W, b, images)
 
-          # print('b : ')
-          # print(b)
+          #Y是一个二维数组，按照行取出其行中不为零的列标，方便与标准值进行比较
+          out_Y = np.nonzero(OY)[1]
+
+          rate = accuracy(labels, out_Y)
+          print('accuracy : %f' %(rate))
 
           # e = loss(W , b , images, labels)
           # print('loss : %f'%(e))
@@ -200,8 +200,13 @@ def test(W, b, images):
 
 
 #统计准确率
-def accuracy():
-     pass
+def accuracy(labels, Y_hat):
+     count = 0
+     for i in range(len(labels)):
+          if labels[i] == Y_hat[i]:
+               count += 1
+
+     return count/len(labels)
 
 
 def show_image(class_names, labels, O, images):
@@ -226,12 +231,12 @@ if __name__ == "__main__":
      #初始化模型，输入参数
      W, b = initial_model(28 * 28, 10)
 
-     print('w.shape : ' + str(W.shape))
-     # print(w.shape)
-     print(W)
+     # print('w.shape : ' + str(W.shape))
+     # # print(w.shape)
+     # print(W)
 
-     print('b.shape : '+ str(b.shape))
-     print(b)
+     # print('b.shape : '+ str(b.shape))
+     # print(b)
 
 
      #处理输入数据
@@ -248,14 +253,13 @@ if __name__ == "__main__":
                'train-images-idx3-ubyte.gz',
                'train-labels-idx1-ubyte.gz']
 
-
      for i in file_list:
           load_data(data_path, i)
      
      headers, images = extract_train_img_data(os.path.join(data_path, 'train-images-idx3-ubyte.gz'))
      
      # print(image)
-     print(type(images))
+     # print(type(images))
      
      header_array = np.frombuffer(headers, dtype = '>u4')
      print(header_array)
@@ -264,15 +268,22 @@ if __name__ == "__main__":
      for i in range(header_array[1]):
           img_array.append(np.frombuffer(images[i], dtype = '>u1'))
      
-     print(img_array[0])
-     print(len(img_array[0]))
+     # print(img_array[0])
+     # print(len(img_array[0]))
 
      labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-     W, b = train(W, b, img_array[0:100], labels, 0.8, 1000)
+     W, b = train(W, b, img_array, labels, 0.01, 100)
      Y = test(W, b, img_array)
 
-     print(labels[0:10])
-     print(Y[0:10,])
-     print(Y.shape)
+     # print(labels)
+     # print(np.nonzero(Y)[1])
+     # print(Y.shape)
+     
+     #Y是一个二维数组，按照行取出其行中不为零的列标，方便与标准值进行比较
+     out_Y = np.nonzero(Y)[1]
+
+     #计算准确率，并输出
+     rate = accuracy(labels, out_Y)
+     print('accuracy : %f' %(rate))
      

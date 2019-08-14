@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-14 13:28:34
+@LastEditTime: 2019-08-14 21:58:52
 '''
 from fashion_mnist import extract_train_img_data 
 from fashion_mnist import extract_train_label_data 
@@ -101,6 +101,38 @@ def loss(W , b , images, labels):
 
      return loss/len(images)
 
+#用导数的定义去求导,判断是否是导数出错
+def grad_def(W, b, image, label):
+
+     Y = np.zeros(shape = (1, 10), dtype=np.float64)
+     O = np.zeros(shape = (1, 10), dtype=np.float64)
+     Y_hat = np.zeros(shape = (1, 10), dtype=np.float64)
+     grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64) 
+
+     O = image.dot(W) + b
+     Y_hat = softmax(O)
+     
+     tmp_Y_hat = np.zeros(shape = (1, 10), dtype=np.float64)
+     tmp_O = np.zeros(shape = (1, 10), dtype=np.float64)
+     tmp_W = W
+     h = 0.
+     tmp_h = 0.
+
+     for i in range(784):
+          for j in range(10):
+               tmp_W = tmp_W[i][j] + 0.00001
+               tmp_O = image.dot(tmp_W) + b
+               tmp_Y_hat = softmax(tmp_O)
+
+               for k in range(10):
+                    h += - Y[k] * log(Y_hat[k])
+                    tmp_h += - Y[k] * log(tmp_Y_hat[k])
+
+               grad_W[i][j] = (h - tmp_h)/0.00001
+
+
+     return grad_W
+     
 #训练函数，模型（W,b)，数据集（图片，标签, 学习率，梯度，误差范围
 def train(W, b, images, labels, lr, num_epoch):
      
@@ -122,9 +154,9 @@ def train(W, b, images, labels, lr, num_epoch):
           # grad_b，向量，一维数组，所有样本的梯度和
           O = np.zeros(shape = (len(images), 10), dtype=np.float64)
           Y_hat = np.zeros(shape = (len(images), 10), dtype=np.float64)
-          grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)
+          grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)  
           grad_b = np.zeros(shape = (1, 10), dtype=np.float64)
-          
+
           
           for j in range(len(images)):
                image = images[j]
@@ -135,30 +167,28 @@ def train(W, b, images, labels, lr, num_epoch):
 
                #计算全局偏导
                #偏导计算公式为(dw = (y - y_hat)*x), x即输入images
-               grad_W = grad_W + np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
-               grad_b += Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)
+               grad_W = grad_W + np.dot(image.reshape(784, 1) ,(Y[j]_hat.reshape(1, 10) - Y[j].reshape(1, 10)).reshape(1, 10))
+               grad_b += Y[j]_hat.reshape(1, 10) - Y[j].reshape(1, 10)
 
-               print('image.reshape(784, 1)')
-               print(image.reshape(784, 1))
-               print('(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))')
-               print((Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
+               # print('image.reshape(784, 1)')
+               # print(image.reshape(784, 1))
+               # print('(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))')
+               # print((Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
 
-               print('grad_W')
-               print(grad_W)
+               # print('grad_W')
+               # print(grad_W)
+
+
+          # print('O[0]')
+          # print(O[0])
                
-               break
-          break
+          # print('Y_hat[0]')
+          # print(Y_hat[0])
 
-          print('O[0]')
-          print(O[0])
-               
-          print('Y_hat[0]')
-          print(Y_hat[0])
+          # print('Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)')
+          # print(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10))
 
-          print('Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)')
-          print(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10))
-
-          print(' ')
+          # print(' ')
 
           
           #更新权重参数
@@ -261,8 +291,8 @@ if __name__ == "__main__":
 
      labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-     W, b = train(W, b, img_array[0:10], labels, 0.9, 10)
-     Y = test(W, b, img_array[0:10])
+     W, b = train(W, b, img_array], labels, 0.9, 50)
+     Y = test(W, b, img_array)
 
      print(labels[0:10])
      print(Y[0:10,])
