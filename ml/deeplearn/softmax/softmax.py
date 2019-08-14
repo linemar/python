@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-14 12:47:36
+@LastEditTime: 2019-08-14 18:55:47
 '''
 from fashion_mnist import extract_train_img_data 
 from fashion_mnist import extract_train_label_data 
@@ -150,9 +150,9 @@ def train(W, b, images, labels, lr, num_epoch):
                Y_hat[j] = softmax(O[j])
           
           # print('O')
-               print(O[0])
-          # # print('Y_hat')
-               print(Y_hat[0])
+          #      print(O[0])
+          # # # print('Y_hat')
+          #      print(Y_hat[0])
           # print(Y_hat[0].shape)
           # re_y = Y_hat[0].reshape(10, 1)
           # print(re_y)
@@ -163,23 +163,24 @@ def train(W, b, images, labels, lr, num_epoch):
 
                #计算全局偏导
                #偏导计算公式为(dw = (y - y_hat)*x), x即输入images
-               grad_W += np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
-               grad_b += Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)
+               grad_W = np.dot(image.reshape(784, 1) ,(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
+               grad_b = Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)
 
-               break
-          
+               W = W - lr * grad_W / len(images)
+               b = b - lr * grad_b / len(images)
+
           #更新权重参数
-          W = W - lr * grad_W / len(images)
-          b = b - lr * grad_b / len(images)
+          # W = W - lr * grad_W / len(images)
+          # b = b - lr * grad_b / len(images)
 
-          print('W : ')
-          print(W)
+          # print('W : ')
+          # print(W)
 
-          print('b : ')
-          print(b)
+          # print('b : ')
+          # print(b)
 
-          e = loss(W , b , images, labels)
-          print('loss : %f'%(e))
+          # e = loss(W , b , images, labels)
+          # print('loss : %f'%(e))
 
      return W, b
 
@@ -234,8 +235,8 @@ if __name__ == "__main__":
 
 
      #处理输入数据
-     new_W = initial_input(W)
-     print(new_W)
+     # new_W = initial_input(W)
+     # print(new_W)
 
      font = FontProperties(fname = r"/mnt/c/Windows/Fonts/simsun.ttc", size = 6)
 
@@ -268,8 +269,8 @@ if __name__ == "__main__":
 
      labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-     W, b = train(W, b, img_array[0:10], labels, 0.8, 300)
-     Y = test(W, b, img_array[0:10])
+     W, b = train(W, b, img_array[0:100], labels, 0.8, 1000)
+     Y = test(W, b, img_array)
 
      print(labels[0:10])
      print(Y[0:10,])
