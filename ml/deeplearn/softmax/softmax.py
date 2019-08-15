@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-15 17:12:14
+@LastEditTime: 2019-08-15 23:00:33
 '''
 from fashion_mnist import extract_train_img_data 
 from fashion_mnist import extract_train_label_data 
@@ -152,7 +152,8 @@ def train(W, b, images, labels, lr, num_epoch):
                image = images[j].reshape(1, 784)
                #根据初始条件计算预测值
                # images[j].dot(W) 
-               O = image.dot(W.reshape(784, 10)) + b
+               # O = image.dot(W.reshape(784, 10)) + b
+               O = image * W + b
                Y_hat = softmax(O)
           
                # print('O')
