@@ -1,15 +1,11 @@
 '''
-@Descripttion: softmax程序实现
+@Descripttion: softmax 简单版本程序实现，生成简单的模型与数据，去查找识别fashion_mnist的模型哪里有问题
 @version: 
 @Author: SunZewen
 @Date: 2019-07-15 15:55:11
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-14 21:58:52
+@LastEditTime: 2019-08-15 16:55:36
 '''
-from fashion_mnist import extract_train_img_data 
-from fashion_mnist import extract_train_label_data 
-from fashion_mnist import load_data 
-# from fashion_mnist import show_image
 
 import numpy as np
 from math import *
@@ -19,14 +15,7 @@ import matplotlib
 import gzip
 from matplotlib.font_manager import FontProperties 
 
-
-def initial_input(vector):
-
-     for i in vector:
-          i = i/256
-
-     return vector
-    
+debug = 0
 
 #计算预测值
 def output(W, b, X):
@@ -40,12 +29,10 @@ def output(W, b, X):
 #softmax函数
 def softmax(O):
 
-     max = np.max(O)
+     O = O.reshape(1,3)
+     max = np.max(O, axis = 1)
 
-     sum = np.exp(O - max).sum(axis = 0)
-     if sum > 100:
-          print('sum')
-          print(sum)
+     sum = np.exp(O - max).sum(axis = 1)
      
      return np.exp(O - max)/sum
 
@@ -57,14 +44,11 @@ def crossentropy(y, y_hat):
 
      return loss
 
-
-
 #计算反向传播的梯度
 #此处应该计算的小批量的平均梯度
 def grad(y, y_hat, x):
      
      grad_w = (y_hat - y) * x
-
      grad_b = (y_hat - y)
      
      return grad_w, grad_b
@@ -73,11 +57,14 @@ def grad(y, y_hat, x):
 #初始化参数模型, 根据输入数据与输出输出数据，确定w与b
 def initial_model(num_inputs, num_outputs):
     
-    W = np.zeros(shape = (num_inputs, num_outputs))
-    b = np.zeros(shape = (1, num_outputs))
+#     W = np.zeros(shape = (num_inputs, num_outputs))
+     W = np.random.randint(1,5, [num_inputs, num_outputs])
+     b = np.zeros(shape = (1, num_outputs))
 
-    return W, b
+     return W, b
 
+
+#损失函数
 def loss(W , b , images, labels):
 
      loss = 0.
@@ -100,6 +87,7 @@ def loss(W , b , images, labels):
                     loss += 1.0
 
      return loss/len(images)
+
 
 #用导数的定义去求导,判断是否是导数出错
 def grad_def(W, b, image, label):
@@ -134,15 +122,12 @@ def grad_def(W, b, image, label):
      return grad_W
      
 #训练函数，模型（W,b)，数据集（图片，标签, 学习率，梯度，误差范围
-def train(W, b, images, labels, lr, num_epoch):
-     
+def train(W, b, train_data, labels, lr, num_epoch):
+     print('start training ...')
 
-     Y = np.zeros(shape = (len(images), 10), dtype=np.int32)
-
-     for i in range(len(images)):
-          Y[i][labels[i]] = 1
-
-     print(Y[0:10,])
+     Y = Y_hat = np.zeros(shape = (len(train_data), 3), dtype=np.float64)
+     for i in range(len(labels)):
+          Y[i][labels[i]] = 1; 
 
      #总迭代次数
      for j in range(num_epoch):
@@ -152,149 +137,142 @@ def train(W, b, images, labels, lr, num_epoch):
           # O 二维数组，存储中间计算结果, 
           # grad_W，矩阵，二维数组，所有样本的梯度和
           # grad_b，向量，一维数组，所有样本的梯度和
-          O = np.zeros(shape = (len(images), 10), dtype=np.float64)
-          Y_hat = np.zeros(shape = (len(images), 10), dtype=np.float64)
-          grad_W = np.zeros(shape = (len(W), 10), dtype=np.float64)  
-          grad_b = np.zeros(shape = (1, 10), dtype=np.float64)
+          O = np.zeros(shape = (1, 3), dtype=np.float64)
+          Y_hat = np.zeros(shape = (1, 3), dtype=np.float64)
+          grad_W = np.zeros(shape = (5, 3), dtype=np.float64)  
+          grad_b = np.zeros(shape = (1, 3), dtype=np.float64)
 
-          
-          for j in range(len(images)):
-               image = images[j]
+          for j in range(len(train_data)):
                #根据初始条件计算预测值
                # images[j].dot(W) 
-               O[j] = image.dot(W) + b
-               Y_hat[j] = softmax(O[j])
+               O = train_data[j].dot(W) + b
+               Y_hat = softmax(O)
+               
+               if debug == 1: 
+                    print('X[%d]' %(j))
+                    print(X[j])
+
+                    print('Y[%d]' %(j))
+                    print(Y[j])
+                    print('')
+
+                    print('W')
+                    print(W)
+
+                    print('b')
+                    print(b)
+                    print('')
+
+                    print('O')
+                    print(O)
+                    
+                    print('Y_hat')
+                    print(Y_hat)
+
+                    print('')
+
+                    
+                    print('dw = ')
+                    print(np.dot(train_data[j].reshape(5, 1) ,(Y_hat - Y[j]).reshape(1, 3)))
+
+                    print('db = ')
+                    print(Y_hat - Y[j])
+
+                    print('')
 
                #计算全局偏导
                #偏导计算公式为(dw = (y - y_hat)*x), x即输入images
-               grad_W = grad_W + np.dot(image.reshape(784, 1) ,(Y[j]_hat.reshape(1, 10) - Y[j].reshape(1, 10)).reshape(1, 10))
-               grad_b += Y[j]_hat.reshape(1, 10) - Y[j].reshape(1, 10)
+               grad_W += np.dot(train_data[j].reshape(5, 1) ,(Y_hat - Y[j]).reshape(1, 3))
+               grad_b += Y_hat - Y[j]
 
-               # print('image.reshape(784, 1)')
-               # print(image.reshape(784, 1))
-               # print('(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))')
-               # print((Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)).reshape(1, 10))
-
-               # print('grad_W')
-               # print(grad_W)
-
-
-          # print('O[0]')
-          # print(O[0])
-               
-          # print('Y_hat[0]')
-          # print(Y_hat[0])
-
-          # print('Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10)')
-          # print(Y[j].reshape(1, 10) - Y_hat[j].reshape(1, 10))
-
-          # print(' ')
-
-          
           #更新权重参数
-          W = W - lr * grad_W / len(images)
-          b = b - lr * grad_b / len(images)
+          W = W - lr * grad_W / len(train_data)
+          b = b - lr * grad_b / len(train_data)
+          
+          Y1 = test(W, b, train_data)
+          rate = accuracy(labels, np.nonzero(Y1)[1])
 
-          # print('W : ')
-          # print(W)
+          print('rate : %f' %(rate))
 
-          # print('b : ')
-          # print(b)
+          if debug == 1: 
+               print('W')
+               print(W)
+               
+               print('b')
+               print(b)
 
-          # e = loss(W , b , images, labels)
-          # print('loss : %f'%(e))
+               print('')
 
      return W, b
 
 
 #测试函数，使用测试数据集进行测试
-def test(W, b, images):
+def test(W, b, data_set):
 
-     O = np.zeros(shape = (len(images), 10), dtype=np.float64)
-     Y_hat = np.zeros(shape = (len(images), 10), dtype=np.float64)
+     O = np.zeros(shape = (1, 3), dtype=np.float64)
+     Y_hat = np.zeros(shape = (len(data_set), 3), dtype=np.float64)
      
-     for j in range(len(images)):
-          image = images[j]
-          O[j] = image.dot(W) + b
-          Y_hat[j] = softmax(O[j])
+     for j in range(len(data_set)):
+          O = data_set[j].dot(W) + b
+          Y_hat[j] = softmax(O)
 
      return Y_hat
 
 
 #统计准确率
-def accuracy():
-     pass
+def accuracy(labels, Y_hat):
+     count = 0
+     for i in range(len(labels)):
+          if labels[i] == Y_hat[i]:
+               count += 1
 
+     return count/len(labels)
 
-def show_image(class_names, labels, O, images):
-     plt.figure()
- 
-     for i in range(1,33):
-         plt.subplot(4,8,i)
- 
-         plt.xticks([])
-         plt.yticks([])
- 
-         plt.imshow(images[i - 1].reshape(28, 28), cmap=plt.cm.binary)
-         plt.xlabel(class_names[labels[i - 1]], fontproperties=font)
-         plt.xlabel(class_names[O[i - 1]], fontproperties=font)
- 
-     plt.show()
+def genarate_train_data(num):
+
+     X = np.random.randint(0, 300, [num, 5])
+     Y = X.sum(axis = 1)
+
+     for i in range(num):
+          if Y[i] < 500:
+               Y[i] = 0
+          
+          if Y[i] >= 500 and Y[i] < 1000 :
+               Y[i] = 1
+          
+          if Y[i] >= 1000 :
+               Y[i] = 2
+     
+     return X, Y
 
 
 #主函数
 if __name__ == "__main__":
     
+     #生成训练数据
+     X, Y = genarate_train_data(1000)
+
+     if debug == 1: 
+          print('X')
+          print(X)
+          print('Y')
+          print(Y)
+     
      #初始化模型，输入参数
-     W, b = initial_model(28 * 28, 10)
-
-     print('w.shape : ' + str(W.shape))
-     # print(w.shape)
-     print(W)
-
-     print('b.shape : '+ str(b.shape))
-     print(b)
-
-
-     #处理输入数据
-     new_W = initial_input(W)
-     print(new_W)
-
-     font = FontProperties(fname = r"/mnt/c/Windows/Fonts/simsun.ttc", size = 6)
-
-     data_path = '../../data/fashion'
-     class_names = ['短袖圆领T恤', '裤子', '套衫', '连衣裙', '外套', '凉鞋', '衬衫', '运动鞋','包', '短靴']
-
-     file_list = ['t10k-images-idx3-ubyte.gz',
-               't10k-labels-idx1-ubyte.gz',
-               'train-images-idx3-ubyte.gz',
-               'train-labels-idx1-ubyte.gz']
-
-
-     for i in file_list:
-          load_data(data_path, i)
+     W, b = initial_model(5, 3)
+     print('initial_model : ')
      
-     headers, images = extract_train_img_data(os.path.join(data_path, 'train-images-idx3-ubyte.gz'))
-     
-     # print(image)
-     print(type(images))
-     
-     header_array = np.frombuffer(headers, dtype = '>u4')
-     print(header_array)
-     
-     img_array = []
-     for i in range(header_array[1]):
-          img_array.append(np.frombuffer(images[i], dtype = '>u1'))
-     
-     print(img_array[0])
-     print(len(img_array[0]))
+     if debug == 1: 
+          print('W')
+          print(W)
 
-     labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
+          print('b')
+          print(b)
 
-     W, b = train(W, b, img_array], labels, 0.9, 50)
-     Y = test(W, b, img_array)
+     print('train ')
 
-     print(labels[0:10])
-     print(Y[0:10,])
-     print(Y.shape)
-     
+     W, b = train(W, b, X, Y, 0.1, 300)
+     Y1 = test(W, b, X[:10])
+
+     # print(Y[0:10])
+     # print(np.nonzero(Y1[0:10])[1])
