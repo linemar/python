@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-07 11:11:12
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-16 19:25:42
+@LastEditTime: 2019-08-16 21:35:08
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -191,7 +191,7 @@ def batch_size_train(W, b, X, Y, lr, batch_size, num_epoch):
 
 if __name__ == "__main__":
 
-
+     #设置matplot图中的字体
      font = FontProperties(fname = r"/mnt/c/Windows/Fonts/simsun.ttc", size = 6)
 
      data_path = '../../data/fashion'
@@ -202,9 +202,11 @@ if __name__ == "__main__":
             'train-images-idx3-ubyte.gz',
             'train-labels-idx1-ubyte.gz']
 
+     #判断文件是否存在
      for i in file_list:
         load_data(data_path, i)
 
+     #读取训练数据
      headers, images = extract_train_img_data(os.path.join(data_path, 'train-images-idx3-ubyte.gz'))
 
      # print(image)
@@ -223,11 +225,9 @@ if __name__ == "__main__":
 
      labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-     Y = to_ont_hot(labels)
-
-
      # print(labels[0:200])
 
+     #读取测试数据
      test_headers, test_images = extract_train_img_data(os.path.join(data_path, 't10k-images-idx3-ubyte.gz'))
      test_labels = extract_train_label_data(os.path.join(data_path, 't10k-labels-idx1-ubyte.gz'))
 
@@ -241,6 +241,9 @@ if __name__ == "__main__":
           test_X[i] = np.frombuffer(test_images[i], dtype = '>u1') / 255
 
 
+     #\将对应的标签转化为one-hot向量
+     Y = to_ont_hot(labels)
+     
      #批量梯度下降
      #初始化模型，输入参数
      W, b = initial_model(28 * 28, 10)
@@ -249,12 +252,11 @@ if __name__ == "__main__":
      rate = accuracy(uW, ub, test_X, test_labels)
      print('accuracy rate : %f' %(rate))
 
-     
      #小批量梯度下降
      #初始化模型，输入参数
      bW, bb = initial_model(28 * 28, 10)
      
-     ubW, ubb = batch_size_train(bW, bb, X, Y, 0.01, 256, 100)
+     ubW, ubb = batch_size_train(bW, bb, X, Y, 0.1, 300, 10)
      brate = accuracy(ubW, ubb, test_X, test_labels)
      print('accuracy rate : %f' %(brate))
 

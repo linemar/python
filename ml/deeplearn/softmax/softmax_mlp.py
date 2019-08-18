@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-16 17:21:11
+@LastEditTime: 2019-08-18 20:39:46
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -56,6 +56,16 @@ def softmax(o):
 
     return exp_o / sum
 
+def relu(input):
+    
+    return np.maximum(input, 0)
+    
+def reluGD(input):
+    output  = np.maximum(input, 0)  #先将数组中的负数归零
+    output = np.minimum(output, 1) #将大于1的置1
+    output = np.maximum(output, 1) #将大于0, 小于1的置1
+
+    return output
 
 def softmax_loss(Y, Y_hat):
 
@@ -104,42 +114,45 @@ def accuracy(W, b, X, labels):
     # print('rate : %f' %(count/len(X)))
 
 
-def train(W, b, X, Y, lr, num_epoch):
+#使用小批量梯度下降法进行训练
+def batch_size_train(W, b, X, Y, lr, batch_size, num_epoch):
 
-    for j in range(num_epoch):
-        print('epoch : %d' %(j))
+     order = np.arange(0, 60000, dtype=np.int32)
 
-        grad_W = np.zeros(shape = (784, 10))
-        grad_b = np.zeros(shape = (1, 10))
-        e = 0.
-        
-        for i in range(len(X)):
-            x = X[i].reshape(1, 784)
-            y = Y[i].reshape(1, 10)
+     for j in range(num_epoch):
+          print('epoch : %d' %(j))
+  
+          grad_W = np.zeros(shape = (784, 10))
+          grad_b = np.zeros(shape = (1, 10))
+          e = 0.
+          
+          for i in range(int(len(X)/batch_size)):
+               
+               random.shuffle(order)
 
-            o = output(W, b, x)
-            y_hat = softmax(o)
-
-            loss = softmax_loss(y, y_hat)
-            g_W , g_b = softmaxGD(loss, x)
-            grad_W += g_W
-            grad_b += g_b
-
-            e += error(y, y_hat)
-
-        grad_W = grad_W / len(X)
-        grad_b = grad_b / len(X)
-
-        W, b = update_para(W, b, grad_W, grad_b, lr)
-
-        rate = accuracy(W, b, X, labels)
-
-        print('error : %f' %(e/len(X)))
-        print('accuracy rate : %f' %(rate))
-        
-
-    
-    return W, b
+               for k in order[0 : batch_size]:
+                    x = X[k].reshape(1, 784)
+                    y = Y[k].reshape(1, 10)
+          
+                    o = output(W, b, x)
+                    y_hat = softmax(o)
+          
+                    loss = softmax_loss(y, y_hat)
+                    g_W , g_b = softmaxGD(loss, x)
+                    grad_W += g_W
+                    grad_b += g_b
+          
+                    e += error(y, y_hat)
+                    
+               grad_W = grad_W / batch_size
+               grad_b = grad_b / batch_size
+  
+               W, b = update_para(W, b, grad_W, grad_b, lr)
+  
+          rate = accuracy(W, b, X, labels)
+  
+          print('error : %f' %( e / len(X) ))
+          print('accuracy rate : %f' %( rate ) )
 
 
 
@@ -159,38 +172,23 @@ if __name__ == "__main__":
     for i in file_list:
         load_data(data_path, i)
 
+    #训练数据
     headers, images = extract_train_img_data(os.path.join(data_path, 'train-images-idx3-ubyte.gz'))
-
-    # print(image)
-    # print(type(images))
-
     header_array = np.frombuffer(headers, dtype = '>u4')
     print(header_array)
 
     X = np.zeros(shape = (60000, 784))
-
     for i in range(header_array[1]):
         X[i] = np.frombuffer(images[i], dtype = '>u1') / 255
 
-    # print(img_array[0])
-    # print(len(img_array[0]))
-
     labels = extract_train_label_data(os.path.join(data_path, 'train-labels-idx1-ubyte.gz'))
 
-    Y = to_ont_hot(labels)
 
-    #初始化模型，输入参数
-    W, b = initial_model(28 * 28, 10)
-    
-    uW, ub = train(W, b, X, Y, 0.05, 100)
-
-    # print(labels[0:200])
-
+    #测试数据
     test_headers, test_images = extract_train_img_data(os.path.join(data_path, 't10k-images-idx3-ubyte.gz'))
     test_labels = extract_train_label_data(os.path.join(data_path, 't10k-labels-idx1-ubyte.gz'))
 
     print(test_headers)
-
     test_header_array = np.frombuffer(test_headers, dtype = '>u4')
     
     test_X = np.zeros(shape = (10000, 784))
@@ -198,6 +196,13 @@ if __name__ == "__main__":
     for i in range(test_header_array[1]):
         test_X[i] = np.frombuffer(test_images[i], dtype = '>u1') / 255
 
-    rate = accuracy(uW, ub, test_X, test_labels)
+    #将对应的标签转化为one-hot向量
+    Y = to_ont_hot(labels)
+        
+    #初始化模型，输入参数
+    W, b = initial_model(28 * 28, 10)
+    
+    W, b = batch_size_train(bW, bb, X, Y, 0.1, 300, 10)train(W, b, X, Y, 0.05, 100)
+    rate = accuracy(W, b, test_X, test_labels)
     print('accuracy rate : %f' %(rate))
     
