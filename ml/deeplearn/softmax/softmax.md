@@ -1,10 +1,11 @@
 <!--
+
  * @Descripttion: 
  * @version: 
  * @Author: SunZewen
  * @Date: 2019-08-07 11:11:12
  * @LastEditors: SunZewen
- * @LastEditTime: 2019-08-14 22:39:54
+ * @LastEditTime: 2019-08-19 14:24:05
  -->
 # 基于Numpy实现softmax
 
@@ -152,7 +153,7 @@ $$
 $$
 H(p, q) = - \sum_{x}
             p(x) \;
-            \textup{log} \;
+            \rm {log} \;
             q(x)
 $$
 
@@ -185,7 +186,7 @@ $$
 ## 4. 反向传播
 
     最小化误差 ->  利用梯度下降法求出误差最小时 w 与 b 的值。
-    
+
 单样本的损失函数 为
 $$
  E = H(y, \hat y) \tag{4}
@@ -239,13 +240,12 @@ $$
 $$
 \frac{\partial E}{\partial \hat{y}} = y* \frac{1}{\hat{y}}
 $$
-$$        
-
+$$
     \frac{\partial o_i}{\partial w_{ij}} = x_{j} 
 $$
 
 ### 4、 整合结果
-以 $w_{11}$ 为例
+以 $w_{11} $ 为例
 
 $$
     \frac{\partial E}{\partial w_{11}} = \frac{\partial E}{\partial \hat{y_1}} * 
@@ -259,7 +259,7 @@ $$
                                          \frac {\partial o_1}{\partial w_{11}} \\
 $$
 $$
-     \ \quad\qquad\qquad\qquad\qquad = -y_1 * \frac{1}{\hat{y_1}}  * ({\hat{y_1}(1 - \hat{y_1})}) * x_1 -  y_2 * \frac{1}{\hat{y_2}}  * ({ - \hat{y_1}\hat{y_2}}) * x_1 -
+\ \quad\qquad\qquad\qquad\qquad = -y_1 * \frac{1}{\hat{y_1}}  * ({\hat{y_1}(1 - \hat{y_1})}) * x_1 -  y_2 * \frac{1}{\hat{y_2}}  * ({ - \hat{y_1}\hat{y_2}}) * x_1 -
                                        y_3 * \frac{1}{\hat{y_3}}  * ({ - \hat{y_1}\hat{y_3}}) * x_1   \\
                                      = -(y_1 * (1 - \hat{y_1}) - y_2\hat{y_1} - y_3\hat{y_1}) * x_1 \ \quad\qquad\qquad\qquad\qquad \\
                                        =-(y_1 - \hat{y_1}(\hat{y_1} + \hat{y_2} + \hat{y_3})) * x_1  \ \quad\qquad\qquad\qquad\qquad\qquad \\

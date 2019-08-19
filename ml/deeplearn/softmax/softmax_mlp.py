@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-18 20:39:46
+@LastEditTime: 2019-08-19 19:28:09
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -14,6 +14,7 @@ from fashion_mnist import load_data
 
 import numpy as np
 from math import *
+import random
 import os
 import time
 import matplotlib 
@@ -37,17 +38,31 @@ def to_ont_hot(Y):
     return new_Y
 
 #初始化模型
-def initial_model(inputDim, outputDim):
-    weights = np.random.rand(inputDim, outputDim)
-    biases = np.random.rand(1, outputDim)
+def initial_model(inputDim, outputDim, numberOfLayers):
+
+    weights = []
+    biases = []
+    
+    for i in range(numberOfLayers - 1):
+        weights.append(np.random.rand(inputDim, inputDim))
+        biases.append(np.random.rand(1, inputDim))
 
     return weights, biases
 
-def output(W, b, x):
+#定义每层的输出函数   
+
+def output(W, b, x, numberOfLayers):
+
+    h = []
+    ho = []
+
+    for i in range(0, numberOfLayers - 1):
+        h.append(x.dot(W[i]) + b[i])   #计算第i层的输出
+        ho.append(ReLU(h[i]))          #将其转换为ReLU
     
-    o= x.dot(W) + b
-    
-    return o
+    a = softmax(ho[numberOfLayers - 1])
+
+    return h, ho, a   #返回每一层的输出，与relu操作后的结果，并且计算最后的预测值
 
 def softmax(o):
     
@@ -56,11 +71,10 @@ def softmax(o):
 
     return exp_o / sum
 
-def relu(input):
-    
+def ReLU(input):
     return np.maximum(input, 0)
     
-def reluGD(input):
+def ReLUGD(input):
     output  = np.maximum(input, 0)  #先将数组中的负数归零
     output = np.minimum(output, 1) #将大于1的置1
     output = np.maximum(output, 1) #将大于0, 小于1的置1
@@ -82,6 +96,19 @@ def softmaxGD(loss, X):
 
     return grad_W, grad_b
 
+
+def grad(W, b, x, y, numberOfLayers):
+
+    h, ho, a = output(W, b, x, numberOfLayers)
+    grad_W = []
+    grad_b = []
+    
+    # for i in range(numberOfLayers - 1):
+    #     grad_W[numberOfLayers - 1 - i] = (a - Y)
+    #     grad_b[numberOfLayers - 1 - i] = 
+
+    return grad_W, grad_b
+
 def update_para(W, b, grad_W, grad_b, lr):
     W -= grad_W * lr 
     b -= grad_b * lr
@@ -96,11 +123,11 @@ def error(Y, Y_hat):
 
     return error
 
-def accuracy(W, b, X, labels):
+def accuracy(W, b, X, labels, numberOfLayers):
     
     out_list = []
     for i in range(len(X)):
-        out = output(W, b, X[i])
+        h, ho, out = output(W, b, X[i], numberOfLayers)
         y_hat = softmax(out)
         out_list.append(y_hat.argmax())
 
@@ -115,44 +142,54 @@ def accuracy(W, b, X, labels):
 
 
 #使用小批量梯度下降法进行训练
-def batch_size_train(W, b, X, Y, lr, batch_size, num_epoch):
+def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
 
-     order = np.arange(0, 60000, dtype=np.int32)
 
-     for j in range(num_epoch):
-          print('epoch : %d' %(j))
+    order = np.arange(0, 60000, dtype=np.int32)
+
+    for j in range(num_epoch):
+        print('epoch : %d' %(j))
   
-          grad_W = np.zeros(shape = (784, 10))
-          grad_b = np.zeros(shape = (1, 10))
-          e = 0.
-          
-          for i in range(int(len(X)/batch_size)):
+        e = 0.
+
+        grad_W = []
+        grad_b = []
+
+        for i in range(numberOfLayers - 1):
+            grad_W.append(np.zeros(shape = (784, 784)))
+            grad_b.append(np.zeros(shape = (1, 784)))
+
+        grad_W.append(np.zeros(shape = (784, 10)))
+        grad_b.append(np.zeros(shape = (1, 10)))
+
+
+        for i in range(int(len(X)/batch_size)):
                
-               random.shuffle(order)
+            random.shuffle(order)
 
-               for k in order[0 : batch_size]:
-                    x = X[k].reshape(1, 784)
-                    y = Y[k].reshape(1, 10)
+            for k in order[0 : batch_size]:
+                x = X[k].reshape(1, 784)
+                y = Y[k].reshape(1, 10)
           
-                    o = output(W, b, x)
-                    y_hat = softmax(o)
+                o = output(W, b, x)
+                y_hat = softmax(o)
           
-                    loss = softmax_loss(y, y_hat)
-                    g_W , g_b = softmaxGD(loss, x)
-                    grad_W += g_W
-                    grad_b += g_b
+                loss = softmax_loss(y, y_hat)
+                g_W , g_b = softmaxGD(loss, x)
+                grad_W += g_W
+                grad_b += g_b
           
-                    e += error(y, y_hat)
+                e += error(y, y_hat)
                     
-               grad_W = grad_W / batch_size
-               grad_b = grad_b / batch_size
+            grad_W = grad_W / batch_size
+            grad_b = grad_b / batch_size
   
-               W, b = update_para(W, b, grad_W, grad_b, lr)
+            W, b = update_para(W, b, grad_W, grad_b, lr)
   
-          rate = accuracy(W, b, X, labels)
+        rate = accuracy(W, b, X, labels)
   
-          print('error : %f' %( e / len(X) ))
-          print('accuracy rate : %f' %( rate ) )
+        print('error : %f' %( e / len(X) ))
+        print('accuracy rate : %f' %( rate ) )
 
 
 
@@ -200,9 +237,9 @@ if __name__ == "__main__":
     Y = to_ont_hot(labels)
         
     #初始化模型，输入参数
-    W, b = initial_model(28 * 28, 10)
-    
-    W, b = batch_size_train(bW, bb, X, Y, 0.1, 300, 10)train(W, b, X, Y, 0.05, 100)
-    rate = accuracy(W, b, test_X, test_labels)
-    print('accuracy rate : %f' %(rate))
+    W, b = initial_model(28 * 28, 10, 5)
+
+    # W, b = batch_size_train(bW, bb, X, Y, 0.1, 300, 10)train(W, b, X, Y, 0.05, 100)
+    # rate = accuracy(W, b, test_X, test_labels)
+    # print('accuracy rate : %f' %(rate))
     

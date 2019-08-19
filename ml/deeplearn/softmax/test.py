@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-14 11:37:41
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-16 11:21:23
+@LastEditTime: 2019-08-19 19:06:47
 '''
 from softmax import softmax 
 import numpy as np

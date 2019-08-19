@@ -6,7 +6,7 @@
  * @LastEditors: SunZewen
  * @LastEditTime: 2019-08-10 12:55:33
  -->
-# 多层感知机 （multilayer perceptron，MLP）
+# 多层感知机 （multilayer perception，MLP）
 
 
 ## 一、 隐藏层
@@ -14,61 +14,86 @@
 ## 二、神经网络模型
 示例为一个三层网络模型，包含两层隐藏层。
 
-![avatar](多层神经网络模型.jpg)
+横向流程图源码格式：
 
-## 2.1 前向传播
+
+
+### 2.1 前向传播
 
 第一层
 $$
-h_{11} = w_{11}*x_{1} + w_{14} * x_{2} + b_{1} \\
-h_{12} = w_{12}*x_{1} + w_{15} * x_{2} + b_{1} \\
-h_{13} = w_{13}*x_{1} + w_{16} * x_{2} + b_{1}
+h_{11} = w_{111}*x_{1} + w_{112} * x_{2} + b_{1} \\
+h_{12} = w_{121}*x_{1} + w_{122} * x_{2} + b_{1} \\
+h_{13} = w_{131}*x_{1} + w_{132} * x_{2} + b_{1}  \\
+
+ho_{11} = relu(h_{11}) \\
+ho_{12} = relu(h_{12}) \\
+ho_{13} = relu(h_{13})
 $$
 
 第二层
 $$
-h_{21} = w_{21}*h_{11} + w_{24} * h_{12} + w_{27} * h_{13} \\
-h_{22} = w_{22}*h_{11} + w_{25} * h_{12} + w_{27} * h_{13} \\
-h_{23} = w_{23}*h_{11} + w_{26} * h_{12} + w_{27} * h_{13}
+h_{21} = w_{211}*ho_{11} + w_{212} * ho_{12} + w_{213} * ho_{13} + b_{2} \\
+h_{22} = w_{221}*ho_{11} + w_{222} * ho_{12} + w_{223} * ho_{13} + b_{2} \\
+h_{23} = w_{231}*ho_{11} + w_{232} * ho_{12} + w_{233} * ho_{13} + b_{2} \\
+
+ho_{21} = relu(h_{21}) \\
+ho_{22} = relu(h_{22}) \\
+ho_{23} = relu(h_{23})
 $$
 
 第三层
 $$
-o_{1} = w_{31}*h_{21} + w_{33} * h_{22} + w_{35} * h_{23} \\
-o_{2} = w_{32}*h_{21} + w_{34} * h_{22} + w_{36} * h_{23}
+o_{1} = w_{311}*ho_{21} + w_{311} * ho_{22} + w_{313} * ho_{23} \\
+o_{2} = w_{321}*ho_{21} + w_{312} * ho_{22} + w_{323} * ho_{23}
+$$
+
+$$
+a_{1} = softmax(o_1) \\
+a_{2} = softmax(o_2)
 $$
 
 误差计算 
 
 $$
-误差公式 \qquad E = \frac{1}{2} (\hat{y} - y)^2 \\
-E_{total} = E_{o1} + E_{o2}
+E = H(p, q) = - \sum_{x}
+            p(x) \;
+            \rm {log}\;
+            q(x)
 $$
 
 
-## 2.2 反向传播
+### 2.2 反向传播
 
-第一层
-$$
-\frac{\partial E_{total}}{\partial w_{31}} =  \frac{\partial o}{\partial}
-$$
+第3层 
 
-第二层
-$$
-h_{21} = w_{21}*h_{11} + w_{24} * h_{12} + w_{27} * h_{13} \\
-h_{22} = w_{22}*h_{11} + w_{25} * h_{12} + w_{27} * h_{13} \\
-h_{23} = w_{23}*h_{11} + w_{26} * h_{12} + w_{27} * h_{13}
-$$
+根据单层soft max推导结果可得
 
-第三层
-$$
-o_{1} = w_{31}*h_{21} + w_{33} * h_{22} + w_{35} * h_{23} \\
-o_{2} = w_{32}*h_{21} + w_{34} * h_{22} + w_{36} * h_{23}
-$$
-
-误差计算 
 
 $$
-误差公式 \qquad E = \frac{1}{2} (\hat{y} - y)^2 \\
-E_{total} = E_{o1} + E_{o2}
+\frac{\partial E}{\partial w_{311}} = \sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} * \frac{\partial o_1}{\partial w_{311}} \\
+\qquad \qquad \qquad \qquad \qquad \quad \ = \frac{\partial E}{\partial a_1} * \frac{\partial a_1}{\partial o_1} * \frac{\partial o_1}{\partial w_{311}}  + \frac{\partial E}{\partial a_2} * \frac{\partial a_2}{\partial o_1} * \frac{\partial o_1}{\partial w_{311}}  \\
+\quad = (a_1 - y_1) * ho_{21} \quad \\
 $$
+
+第2层
+$$
+\frac{\partial E}{\partial w_{211}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {w_{211}}} \\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * ho_{1}
+$$
+
+第1层
+$$
+\frac{\partial E}{\partial w_{111}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1}) * \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {ho_{11}}} * \frac {\partial ho_{11}} {\partial {h_{11}}} * \frac {\partial h_{11}} {\partial {w_{111}}}\\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * w_{211} * relugd(h_{11}) * x_{1}
+$$
+
+## 三、激活函数
+
+### 3.1 ReLU函数
+
+### 3.2 sigmoid函数
+
+### 3.3 tanh函数
+
+## 四、梯度计算
