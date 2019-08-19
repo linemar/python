@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-19 19:28:09
+@LastEditTime: 2019-08-19 22:09:03
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -103,9 +103,9 @@ def grad(W, b, x, y, numberOfLayers):
     grad_W = []
     grad_b = []
     
-    # for i in range(numberOfLayers - 1):
-    #     grad_W[numberOfLayers - 1 - i] = (a - Y)
-    #     grad_b[numberOfLayers - 1 - i] = 
+    for i in range(numberOfLayers - 1):
+        grad_W.append((a - Y))
+        grad_b.append((a - Y))
 
     return grad_W, grad_b
 
