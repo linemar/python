@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-20 18:46:10
+@LastEditTime: 2019-08-20 23:56:58
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -121,15 +121,25 @@ def grad(W, b, x, y, numberOfLayers):
         print('i : %d' %(i))
         grad_W[numberOfLayers - 1 - i] = ho[numberOfLayers - 1 - i].reshape(784, 1).dot((a - y))  #将x当做ho0
         grad_b[numberOfLayers - 1 - i] = a - y
+
+        if i >= 1 :
+            # print(W[numberOfLayers -1].shape)
+            # print(grad_W[numberOfLayers - 2].shape)
+            # print(W[numberOfLayers - 2].shape)
+            # print(ReLUGD(h[numberOfLayers -2]).shape)
+
+            grad_W[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_W[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
+            grad_b[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_b[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
+
         
-        for j in range(0, i):
+        for j in range(1, i):
             print('j : %d' %(j))
             print(grad_W[numberOfLayers - 1 - i].shape)
-            print(W[numberOfLayers - 1 - j].shape)
+            print(W[numberOfLayers - i - j].shape)
             print(ReLUGD(h[numberOfLayers -1 - j]).shape)
             
-            grad_W[numberOfLayers - 1 - i] = grad_W[numberOfLayers - 1 - i] * W[numberOfLayers -1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]), ())
-            grad_b[numberOfLayers - 1 - i] = grad_b[numberOfLayers - 1 - i] * W[numberOfLayers -1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]))
+            grad_W[numberOfLayers - 1 - i] = grad_W[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
+            grad_b[numberOfLayers - 1 - i] = grad_b[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
 
     return grad_W, grad_b
 
