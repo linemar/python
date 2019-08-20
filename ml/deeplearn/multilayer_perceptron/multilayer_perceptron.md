@@ -76,10 +76,21 @@ $$
 \quad = (a_1 - y_1) * ho_{21} \quad \\
 $$
 
+$$
+\frac{\partial E}{\partial b_{3}} = \sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} * \frac{\partial o_1}{\partial b_{3}} \\
+\qquad \qquad \qquad \qquad \qquad \quad \ = \frac{\partial E}{\partial a_1} * \frac{\partial a_1}{\partial o_1} * \frac{\partial o_1}{\partial b_{3}}  + \frac{\partial E}{\partial a_2} * \frac{\partial a_2}{\partial o_1} * \frac{\partial o_1}{\partial b_{3}}  \\
+\quad = a_1 - y_1 \quad \\
+$$
+
 第2层
 $$
 \frac{\partial E}{\partial w_{211}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {w_{211}}} \\
 \qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * ho_{1}
+$$
+
+$$
+\frac{\partial E}{\partial b_{2}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {b_{2}}} \\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21})
 $$
 
 第1层
@@ -87,6 +98,13 @@ $$
 \frac{\partial E}{\partial w_{111}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1}) * \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {ho_{11}}} * \frac {\partial ho_{11}} {\partial {h_{11}}} * \frac {\partial h_{11}} {\partial {w_{111}}}\\
 \qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * w_{211} * relugd(h_{11}) * x_{1}
 $$
+
+$$
+\frac{\partial E}{\partial b_{1}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1}) * \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {ho_{11}}} * \frac {\partial ho_{11}} {\partial {h_{11}}} * \frac {\partial h_{11}} {\partial {b_{1}}}\\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * w_{211} * relugd(h_{11})
+$$
+
+
 
 ## 三、激活函数
 

@@ -4,7 +4,7 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-@LastEditTime: 2019-08-19 22:09:03
+@LastEditTime: 2019-08-20 18:46:10
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -40,23 +40,25 @@ def to_ont_hot(Y):
 #初始化模型
 def initial_model(inputDim, outputDim, numberOfLayers):
 
-    weights = []
-    biases = []
+    weights = [None for i in range(numberOfLayers)]
+    biases = [None for i in range(numberOfLayers)]
     
     for i in range(numberOfLayers - 1):
-        weights.append(np.random.rand(inputDim, inputDim))
-        biases.append(np.random.rand(1, inputDim))
+        weights[i] = np.random.rand(inputDim, inputDim)
+        biases[i] = np.random.rand(1, inputDim)
+    
+    weights[numberOfLayers - 1] = np.random.rand(inputDim, outputDim)
+    biases[numberOfLayers - 1] = np.random.rand(1, outputDim)
 
     return weights, biases
 
 #定义每层的输出函数   
-
 def output(W, b, x, numberOfLayers):
 
     h = []
     ho = []
 
-    for i in range(0, numberOfLayers - 1):
+    for i in range(numberOfLayers):
         h.append(x.dot(W[i]) + b[i])   #计算第i层的输出
         ho.append(ReLU(h[i]))          #将其转换为ReLU
     
@@ -97,21 +99,44 @@ def softmaxGD(loss, X):
     return grad_W, grad_b
 
 
+'''
+@name: 
+@test: test font
+@msg: 计算每一层的梯度，并将其返回
+@param {type} 
+@return: grad_W, grad_b
+'''
 def grad(W, b, x, y, numberOfLayers):
 
     h, ho, a = output(W, b, x, numberOfLayers)
-    grad_W = []
-    grad_b = []
+    ho.insert(0, x)   # 将插入ho中，方便后边的循环处理
+
+    grad_W = [None for i in range(numberOfLayers)]
+    grad_b = [None for i in range(numberOfLayers)]
     
-    for i in range(numberOfLayers - 1):
-        grad_W.append((a - Y))
-        grad_b.append((a - Y))
+    print(a.shape)
+    print(y.shape)
+    
+    for i in range(numberOfLayers):
+        print('i : %d' %(i))
+        grad_W[numberOfLayers - 1 - i] = ho[numberOfLayers - 1 - i].reshape(784, 1).dot((a - y))  #将x当做ho0
+        grad_b[numberOfLayers - 1 - i] = a - y
+        
+        for j in range(0, i):
+            print('j : %d' %(j))
+            print(grad_W[numberOfLayers - 1 - i].shape)
+            print(W[numberOfLayers - 1 - j].shape)
+            print(ReLUGD(h[numberOfLayers -1 - j]).shape)
+            
+            grad_W[numberOfLayers - 1 - i] = grad_W[numberOfLayers - 1 - i] * W[numberOfLayers -1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]), ())
+            grad_b[numberOfLayers - 1 - i] = grad_b[numberOfLayers - 1 - i] * W[numberOfLayers -1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]))
 
     return grad_W, grad_b
 
-def update_para(W, b, grad_W, grad_b, lr):
-    W -= grad_W * lr 
-    b -= grad_b * lr
+def update_para(W, b, grad_W, grad_b, numberOfLayers, lr):
+    for i in range(numberOfLayers):
+        W[i] -= grad_W[i] * lr 
+        b[i] -= grad_b[i] * lr
 
     return W, b
 
@@ -123,18 +148,16 @@ def error(Y, Y_hat):
 
     return error
 
-def accuracy(W, b, X, labels, numberOfLayers):
+def accuracy(W, b, X, Y, a):
     
     out_list = []
     for i in range(len(X)):
-        h, ho, out = output(W, b, X[i], numberOfLayers)
-        y_hat = softmax(out)
-        out_list.append(y_hat.argmax())
+        out_list.append(a.argmax())
 
     count = 0
 
     for  i in range(len(X)):
-        if labels[i] == out_list[i]:
+        if Y[i] == out_list[i]:
             count += 1
     
     return count/len(X)
@@ -143,7 +166,6 @@ def accuracy(W, b, X, labels, numberOfLayers):
 
 #使用小批量梯度下降法进行训练
 def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
-
 
     order = np.arange(0, 60000, dtype=np.int32)
 
@@ -155,13 +177,13 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
         grad_W = []
         grad_b = []
 
-        for i in range(numberOfLayers - 1):
-            grad_W.append(np.zeros(shape = (784, 784)))
-            grad_b.append(np.zeros(shape = (1, 784)))
+        # for i in range(numberOfLayers - 1):
+        #     grad_W.append(np.zeros(shape = (784, 784)))
+        #     grad_b.append(np.zeros(shape = (1, 784)))
 
-        grad_W.append(np.zeros(shape = (784, 10)))
-        grad_b.append(np.zeros(shape = (1, 10)))
-
+        # grad_W.append(np.zeros(shape = (784, 10)))
+        # grad_b.append(np.zeros(shape = (1, 10)))
+        A = 0.
 
         for i in range(int(len(X)/batch_size)):
                
@@ -170,26 +192,29 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
             for k in order[0 : batch_size]:
                 x = X[k].reshape(1, 784)
                 y = Y[k].reshape(1, 10)
+
+                h, ho, a = output(W, b, x, numberOfLayers)
+                g_W , g_b = grad(W, b, x, y, numberOfLayers)
+
+                for j in range(numberOfLayers):
+
+                    grad_W[j] += g_W[j]
+                    grad_b[j] += g_b[j]
           
-                o = output(W, b, x)
-                y_hat = softmax(o)
-          
-                loss = softmax_loss(y, y_hat)
-                g_W , g_b = softmaxGD(loss, x)
-                grad_W += g_W
-                grad_b += g_b
-          
-                e += error(y, y_hat)
-                    
-            grad_W = grad_W / batch_size
-            grad_b = grad_b / batch_size
+                e += error(y, a)
+            
+            for m in range(numberOfLayers):
+                grad_W[m] = grad_W[m] / batch_size
+                grad_b[m] = grad_b[m] / batch_size
+    
+            W, b = update_para(W, b, grad_W, grad_b, numberOfLayers, lr)
   
-            W, b = update_para(W, b, grad_W, grad_b, lr)
-  
-        rate = accuracy(W, b, X, labels)
+        rate = accuracy(W, b, X, labels, A)
   
         print('error : %f' %( e / len(X) ))
         print('accuracy rate : %f' %( rate ) )
+
+    return W, b
 
 
 
@@ -239,7 +264,8 @@ if __name__ == "__main__":
     #初始化模型，输入参数
     W, b = initial_model(28 * 28, 10, 5)
 
-    # W, b = batch_size_train(bW, bb, X, Y, 0.1, 300, 10)train(W, b, X, Y, 0.05, 100)
+    W, b = batch_size_train(W, b, X, Y, 5, 0.1, 300, 10)
+    # train(W, b, X, Y, 0.05, 100)
     # rate = accuracy(W, b, test_X, test_labels)
     # print('accuracy rate : %f' %(rate))
     
