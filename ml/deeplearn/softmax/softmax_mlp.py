@@ -7,7 +7,7 @@
 <<<<<<< HEAD
 @LastEditTime: 2019-08-21 08:23:46
 =======
-@LastEditTime: 2019-08-20 23:56:58
+@LastEditTime: 2019-08-21 12:57:35
 >>>>>>> bfbbbe3185a80536d8393df03358c1d3f8f1b5fb
 '''
 
@@ -62,16 +62,20 @@ def output(W, b, x, numberOfLayers):
     h = []
     ho = []
 
-    for i in range(numberOfLayers):
-        h.append(x.dot(W[i]) + b[i])   #计算第i层的输出
+    ho.append(x)
+
+    for i in range(0, numberOfLayers - 1):
+        h.append((ho[i].dot(W[i]) + b[i]) / 784)   #计算第i层的输出, 将输入都缩小至0 - 1，避免softmax溢出
         ho.append(ReLU(h[i]))          #将其转换为ReLU
     
-    a = softmax(ho[numberOfLayers - 1])
+    h.append(ho[numberOfLayers - 1].dot(W[numberOfLayers - 1]) + b[numberOfLayers - 1])   #计算最后一层的输出
+    a = softmax(h[numberOfLayers - 1])
 
     return h, ho, a   #返回每一层的输出，与relu操作后的结果，并且计算最后的预测值
 
 def softmax(o):
-    
+
+    # print(o)
     exp_o = np.exp(o)
     sum = np.sum(exp_o)
 
@@ -109,54 +113,30 @@ def softmaxGD(loss, X):
 @param {type}
 @return: grad_W, grad_b
 '''
-
 def grad(W, b, x, y, numberOfLayers):
     h, ho, a = output(W, b, x, numberOfLayers)
-    ho.insert(0, x) # 将插入ho中，方便后边的循环处理
-    grad_W = [None for i in range(numberOfLayers)]
-    grad_b = [None for i in range(numberOfLayers)]
-    print(a.shape)
-    print(y.shape)
+
+    grad_W = [0 for i in range(numberOfLayers)]
+    grad_b = [0 for i in range(numberOfLayers)]
+
     for i in range(numberOfLayers):
-        print('i : %d' %(i))
+        # print('i : %d' %(i))
         grad_W[numberOfLayers - 1 - i] = ho[numberOfLayers - 1 - i].reshape(784, 1).dot((a - y)) #将x当做ho0
         grad_b[numberOfLayers - 1 - i] = a - y
-<<<<<<< HEAD
+        
         if i >= 1 :
-        # print(W[numberOfLayers -1].shape)
-        # print(grad_W[numberOfLayers - 2].shape)
-        # print(W[numberOfLayers - 2].shape)
-        # print(ReLUGD(h[numberOfLayers -2]).shape)
-        grad_W[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_W[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
-        grad_b[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_b[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
-=======
 
-        if i >= 1 :
-            # print(W[numberOfLayers -1].shape)
-            # print(grad_W[numberOfLayers - 2].shape)
-            # print(W[numberOfLayers - 2].shape)
-            # print(ReLUGD(h[numberOfLayers -2]).shape)
-
-            grad_W[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_W[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
-            grad_b[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_b[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(784, 1), (1, 784)))
+            grad_W[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_W[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), np.tile(ReLUGD(h[numberOfLayers -2]).reshape(1, 784), (784, 1)))
+            grad_b[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_b[numberOfLayers - 1 - i], W[numberOfLayers -1].reshape(10, 784)), ReLUGD(h[numberOfLayers -2]).reshape(1, 784))
 
         
->>>>>>> bfbbbe3185a80536d8393df03358c1d3f8f1b5fb
-        for j in range(1, i):
-            print('j : %d' %(j))
-            print(grad_W[numberOfLayers - 1 - i].shape)
-            print(W[numberOfLayers - i - j].shape)
-            print(ReLUGD(h[numberOfLayers -1 - j]).shape)
-<<<<<<< HEAD
-            grad_W[numberOfLayers - 1 - i] = grad_W[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
-            grad_b[numberOfLayers - 1 - i] = grad_b[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
-=======
+        for j in range(2, i):
             
-            grad_W[numberOfLayers - 1 - i] = grad_W[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
-            grad_b[numberOfLayers - 1 - i] = grad_b[numberOfLayers - 1 - i] * W[numberOfLayers - 1 - j] * np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(784, 1), (1, 784))
+            grad_W[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_W[numberOfLayers - 1 - i], W[numberOfLayers - 1 - j]), np.tile(ReLUGD(h[numberOfLayers -1 - j]).reshape(1, 784), (784, 1)))
+            grad_b[numberOfLayers - 1 - i] = np.multiply(np.dot(grad_b[numberOfLayers - 1 - i], W[numberOfLayers - 1 - j]), ReLUGD(h[numberOfLayers -1 - j]).reshape(1, 784))
 
->>>>>>> bfbbbe3185a80536d8393df03358c1d3f8f1b5fb
     return grad_W, grad_b
+
 
 def update_para(W, b, grad_W, grad_b, numberOfLayers, lr):
     for i in range(numberOfLayers):
@@ -173,11 +153,13 @@ def error(Y, Y_hat):
 
     return error
 
-def accuracy(W, b, X, Y, a):
-    
+def accuracy(W, b, X, Y, numberOfLayers):
+
     out_list = []
     for i in range(len(X)):
-        out_list.append(a.argmax())
+        h, ho, out = output(W, b, X[i], numberOfLayers)
+        # y_hat = softmax(out)
+        out_list.append(out.argmax())
 
     count = 0
 
@@ -199,8 +181,8 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
   
         e = 0.
 
-        grad_W = []
-        grad_b = []
+        grad_W = [0 for i in range(numberOfLayers)]
+        grad_b = [0 for i in range(numberOfLayers)]
 
         # for i in range(numberOfLayers - 1):
         #     grad_W.append(np.zeros(shape = (784, 784)))
@@ -211,6 +193,7 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
         A = 0.
 
         for i in range(int(len(X)/batch_size)):
+            # print('i : %d' %(i))
                
             random.shuffle(order)
 
@@ -218,7 +201,7 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
                 x = X[k].reshape(1, 784)
                 y = Y[k].reshape(1, 10)
 
-                h, ho, a = output(W, b, x, numberOfLayers)
+                h, ho, A = output(W, b, x, numberOfLayers)
                 g_W , g_b = grad(W, b, x, y, numberOfLayers)
 
                 for j in range(numberOfLayers):
@@ -226,7 +209,7 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
                     grad_W[j] += g_W[j]
                     grad_b[j] += g_b[j]
           
-                e += error(y, a)
+                e += error(y, A)
             
             for m in range(numberOfLayers):
                 grad_W[m] = grad_W[m] / batch_size
@@ -234,13 +217,12 @@ def batch_size_train(W, b, X, Y, numberOfLayers, lr, batch_size, num_epoch):
     
             W, b = update_para(W, b, grad_W, grad_b, numberOfLayers, lr)
   
-        rate = accuracy(W, b, X, labels, A)
+        rate = accuracy(W, b, X, labels, numberOfLayers)
   
         print('error : %f' %( e / len(X) ))
         print('accuracy rate : %f' %( rate ) )
 
     return W, b
-
 
 
 if __name__ == "__main__":
@@ -287,10 +269,10 @@ if __name__ == "__main__":
     Y = to_ont_hot(labels)
         
     #初始化模型，输入参数
-    W, b = initial_model(28 * 28, 10, 5)
+    W, b = initial_model(28 * 28, 10, 2)
 
-    W, b = batch_size_train(W, b, X, Y, 5, 0.1, 300, 10)
+    W, b = batch_size_train(W, b, X, Y, 2, 0.5, 200, 10)
     # train(W, b, X, Y, 0.05, 100)
-    # rate = accuracy(W, b, test_X, test_labels)
-    # print('accuracy rate : %f' %(rate))
+    rate = accuracy(W, b, test_X, test_labels, 2)
+    print('accuracy rate : %f' %(rate))
     

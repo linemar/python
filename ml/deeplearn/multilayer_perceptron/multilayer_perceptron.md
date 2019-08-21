@@ -44,8 +44,8 @@ $$
 
 第三层
 $$
-o_{1} = w_{311}*ho_{21} + w_{311} * ho_{22} + w_{313} * ho_{23} \\
-o_{2} = w_{321}*ho_{21} + w_{312} * ho_{22} + w_{323} * ho_{23}
+o_{1} = h_{31} = w_{311}*ho_{21} + w_{312} * ho_{22} + w_{313} * ho_{23} \\
+o_{2} = h_{32} = w_{321}*ho_{21} + w_{322} * ho_{22} + w_{323} * ho_{23}
 $$
 
 $$
@@ -84,13 +84,14 @@ $$
 
 第2层
 $$
-\frac{\partial E}{\partial w_{211}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {w_{211}}} \\
-\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * ho_{1}
+\frac{\partial E}{\partial w_{211}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {w_{211}}}  + (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_2} )* \frac{\partial o_2}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {w_{211}}} \\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * ho_{11} + (a_2 - y_2) * w_{321} * relugd(h_{21}) * ho_{11} \\
+\qquad \qquad = ((a_1 - y_1) * w_{311}  + (a_2 - y_2) * w_{321}) * relugd(h_{21}) * ho_{11}
 $$
 
 $$
-\frac{\partial E}{\partial b_{2}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {b_{2}}} \\
-\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21})
+\frac{\partial E}{\partial b_{2}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1} )* \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {b_{2}}} + (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_2} )* \frac{\partial o_2}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {b_{2}}}\\
+\qquad \qquad = ((a_1 - y_1) * w_{311}  + (a_2 - y_2) * w_{321}) * relugd(h_{21})
 $$
 
 第1层
@@ -104,6 +105,13 @@ $$
 \qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * w_{211} * relugd(h_{11})
 $$
 
+通用求导公式
+$$
+\frac{\partial E}{\partial w_{kij}} = (\sum^{2}_{i = 1} \frac{\partial E}{\partial a_i} * \frac{\partial a_i}{\partial o_1}) * \frac{\partial o_1}{\partial ho_{21}} * \frac {\partial ho_{21}} {\partial {h_{21}}}  * \frac {\partial h_{21}} {\partial {ho_{11}}} * \frac {\partial ho_{11}} {\partial {h_{11}}} * \frac {\partial h_{11}} {\partial {w_{111}}}\\
+\qquad \qquad = (a_1 - y_1) * w_{311} * relugd(h_{21}) * w_{211} * relugd(h_{11}) * x_{1}
+$$
+反向传播计算过程
+
 
 
 ## 三、激活函数
@@ -115,3 +123,5 @@ $$
 ### 3.3 tanh函数
 
 ## 四、梯度计算
+
+1、
