@@ -4,11 +4,8 @@
 @Author: SunZewen
 @Date: 2019-08-16 09:47:16
 @LastEditors: SunZewen
-<<<<<<< HEAD
 @LastEditTime: 2019-08-21 08:23:46
-=======
 @LastEditTime: 2019-08-21 12:57:35
->>>>>>> bfbbbe3185a80536d8393df03358c1d3f8f1b5fb
 '''
 
 from fashion_mnist import extract_train_img_data 
@@ -230,7 +227,7 @@ if __name__ == "__main__":
 
     font = FontProperties(fname = r"/mnt/c/Windows/Fonts/simsun.ttc", size = 6)
 
-    data_path = '../../data/fashion'
+    data_path = 'D:\\git\\git\\data\\fashion'
     class_names = ['短袖圆领T恤', '裤子', '套衫', '连衣裙', '外套', '凉鞋', '衬衫', '运动鞋','包', '短靴']
 
     file_list = ['t10k-images-idx3-ubyte.gz',
